@@ -118,7 +118,8 @@ that stay, delete items the feedback removes, never append duplicates.
 End with a short "Changed in this revision" list.
 
 **APPROVED is locked.** Never rewrite an APPROVED file by re-running its
-step. Changes go through `/change:impact-analysis`. Only an explicit
+step. One exception: the data factory fills the `data:` field and the
+DAT column of approved test case files — it changes nothing else. Changes go through `/change:impact-analysis`. Only an explicit
 "rework the approved …" from the lead resets it to DRAFT.
 
 **Inputs must be approved.** Before using another step's output, check
