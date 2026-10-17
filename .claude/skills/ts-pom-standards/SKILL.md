@@ -28,17 +28,22 @@ automation/
 │   ├── clients/GeneratedEndpointClient.ts  call a customer's endpoint with a key
 │   ├── schemas/<name>.schema.json       JSON schemas (from test cases)
 │   └── validators/schemaValidator.ts    ajv-based validation helper
-├── fixtures/baseTest.ts        exposes pages + clients; creates & cleans qa- data
+├── db/                         ── DATABASE LAYER (read-only) ──
+│   ├── DbClient.ts                      read-only connection, driver by DB_TYPE
+│   ├── queries/<area>.queries.ts        named, parameterized SELECTs only
+│   └── DbVerifier.ts                    business-level checks (endpointRow, orphanKeys…)
+├── fixtures/baseTest.ts        exposes pages + clients + db; creates & cleans qa- data
 ├── utils/                      poll helpers, unique names (qa-<tc>-<timestamp>)
 │   └── testData.ts             typed loader for ../test-data/*.json
 │                               (dataFor('TC-005'), getData('DAT-004'))
 └── tests/
     ├── api/<feature>.api.spec.ts
     ├── ui/<feature>.ui.spec.ts
-    └── e2e/<flow>.e2e.spec.ts
+    ├── e2e/<flow>.e2e.spec.ts
+    └── db/<area>.db.spec.ts         standalone integrity checks (@db)
 ```
 
-`package.json` scripts: `test`, `test:api`, `test:ui`, `test:e2e`,
+`package.json` scripts: `test`, `test:api`, `test:ui`, `test:e2e`, `test:db` (`--grep @db`),
 `test:headed`, `typecheck` (`tsc --noEmit`), `lint`, `report`.
 
 ### First-time setup (whoever creates `automation/` runs this once)
@@ -109,6 +114,39 @@ test('[TC-001] create endpoint in UI and call it with a new key', async ({ endpo
   const response = await endpointCaller.call(qaName, key.value);
   expect(response.status).toBe(200);
 });
+```
+
+### Database layer — same three layers, read-only
+
+| Layer | Job | Never |
+|---|---|---|
+| `db/queries/` | WHAT to read — one named SELECT with `$1`-style parameters | No INSERT/UPDATE/DELETE/DDL, no string-built SQL |
+| `db/DbVerifier.ts` | HOW to answer a business question (`endpointRow('qa-tc001-…')`) | No `expect()` |
+| Tests | WHAT to check — `expect(await db.endpointRow(name)).toMatchObject({ tenant: 'qa-tenant-a' })` | No raw SQL |
+
+Read-only is enforced three times: the DB user has SELECT rights only,
+`DbClient` opens every query in a read-only transaction, and `DbClient`
+rejects any statement that does not start with `SELECT`.
+
+Driver by `DB_TYPE`: `postgres` → `pg`, `mysql` → `mysql2`, `mssql` →
+`mssql` (install only the one needed).
+
+DB steps inside API/E2E tests go through `db.check(...)`. When `DB_TYPE`
+is empty it skips ONLY that step (annotation "DB check skipped — DB
+pending"), so the API/UI part of the test still runs. Standalone
+`tests/db/` specs skip whole with `test.skip(!ENV.dbType, 'DB pending')`.
+
+```ts
+// inside an existing API test — after the action, check the DB
+test('[TC-001] create endpoint stores it for the right tenant',
+  { tag: ['@P0', '@F-001', '@mod-endpoints', '@flow-1', '@db'] },
+  async ({ platform, db, qaName }) => {
+    await platform.createEndpoint(qaName);
+
+    await db.check('endpoint row saved for qa-tenant-a', async (verify) => {
+      expect(await verify.endpointRow(qaName)).toMatchObject({ name: qaName, tenant: 'qa-tenant-a' });
+    });
+  });
 ```
 
 ## 3. TypeScript rules

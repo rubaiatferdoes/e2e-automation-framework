@@ -36,7 +36,7 @@ before moving to the next step.**
 | 4b | `/qa:automation-api:api-test-reviewer` | Reviews, fixes, and stabilizes API tests | Review report |
 | 4c | `/qa:automation-ui:playwright-generator` | Writes UI + E2E tests (TypeScript, POM) | `automation/ui/`, `automation/tests/ui/`, `tests/e2e/` |
 | 4d | `/qa:automation-ui:playwright-reviewer` | Reviews, fixes, and stabilizes UI tests | Review report |
-| 5 | `/qa:database:db-validator` | DB checks — **only after the DB type is known** | `db-tests/` |
+| 5 | `/qa:database:db-validator` | DB checks — **only after the DB type + schema are in `docs/input/db/`** | `automation/db/`, schema check |
 | 6 | `/qa:execution:test-executor` | Runs everything, sorts failures, files bugs | `docs/reports/execution-*.md`, `docs/bugs/` |
 | 7 | `/qa:reporting:quality-reporter` | Release report for managers | `docs/reports/quality-report-*.md` |
 | any | `/qa:change:impact-analysis <CR file or "answers">` | Product sent an update → finds what it affects, updates only that | `docs/changes/CR-*-impact.md` + targeted edits |

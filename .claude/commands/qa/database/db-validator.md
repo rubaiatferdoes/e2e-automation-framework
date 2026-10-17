@@ -1,13 +1,15 @@
 ---
-description: Step 5 — DB Validator agent — read-only, DB-agnostic SQL checks (drafts only until the DB type is decided)
-argument-hint: [path to schema + test cases]
+description: Step 5 — DB Validator agent — compare schema vs requirements, add read-only DB checks to the TypeScript automation (needs DB type + schema)
+argument-hint: [all | module:keys | flow:1 | TC IDs]
 context: fork
 agent: db-validator
 background: false
 ---
 
-Create database validation checks from: $ARGUMENTS
+Add database checks for: $ARGUMENTS
 
-If no path was given, use docs/test-cases.md and any schema file under
-docs/input/. If the DB type is not decided yet, write ANSI SQL drafts
-only and do not connect. Save everything to db-tests/.
+If nothing was given, cover all approved test cases with a DB layer.
+Needs DB_TYPE in .env and the schema in docs/input/db/ — if either is
+missing, stop and say what to add. First write
+docs/analysis/schema-check.md (schema vs requirements), then build
+automation/db/ and the @db checks, and run them read-only.

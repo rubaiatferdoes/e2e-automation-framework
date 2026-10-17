@@ -22,7 +22,7 @@ The E2E flow we own:
 | Topic | Decision | Status |
 |---|---|---|
 | Customizing/editing an endpoint after creation | OUT of scope | Not confirmed if customers can edit — revisit |
-| Database type | Unknown | DB checks are DB-agnostic and OPTIONAL until decided |
+| Database type | Unknown | DB checks skipped until `DB_TYPE` + schema are provided (see `docs/input/db/README.md`) |
 | Cross-tenant access response (403 vs 404) | Unknown | Ask product — never hard-code either |
 | Key revocation delay (how fast a key stops working) | Unknown | Ask product — poll up to that limit |
 | Automation language and design | **TypeScript + Playwright** for UI, API, and E2E in one project (`automation/`); **Page Object Model** for UI, **API Object Model** for API — see the `ts-pom-standards` skill | Team standard |
@@ -131,7 +131,8 @@ unless the arguments say `allow-draft`.
 | `automation/` (shared: config, types, fixtures, utils) | whichever generator runs first; the other reuses it |
 | `automation/ui/`, `automation/tests/ui/`, `automation/tests/e2e/` | playwright-generator / playwright-reviewer |
 | `automation/api/`, `automation/tests/api/` | api-test-generator / api-test-reviewer |
-| `db-tests/` | db-validator |
+| `docs/input/db/` | Humans — DB schema export (no data) |
+| `automation/db/`, `automation/tests/db/`, `docs/analysis/schema-check.md` | db-validator |
 | `docs/reports/` | test-executor, quality-reporter |
 | `docs/bugs/` | defect-report |
 

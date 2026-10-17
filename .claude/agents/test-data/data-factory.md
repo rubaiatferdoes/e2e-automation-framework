@@ -40,6 +40,9 @@ which DAT- IDs changed.
 - Names that must be unique (endpoints, keys) are NOT stored as fixed
   values. Store a pattern instead — `"value": "qa-{tc}-{timestamp}"` —
   and the test code fills it at runtime.
+- If a DB schema exists in `docs/input/db/`, compare each field limit
+  with its column (e.g. BR-008 says 40 chars, column is `VARCHAR(30)`).
+  A mismatch is a finding to report — never shrink the data to fit.
 - Field limits come only from the requirement analysis. If a limit is
   unknown, add the record with `"expected": "ASSUMPTION — verify (Q-xxx)"`.
 - Never real names, emails, or keys. Use `@example.com` emails.

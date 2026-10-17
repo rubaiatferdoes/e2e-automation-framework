@@ -9,6 +9,6 @@ background: false
 Execute the test suites: $ARGUMENTS
 
 If no argument was given, run the readiness check, then everything in
-automation/ (api, ui, e2e) and db-tests/ (Smoke → Functional → Regression).
+automation/ (api, ui, e2e, db) (Smoke → Functional → Regression).
 Classify every failure, re-run failures once for the flaky check, and
 write the report to docs/reports/.

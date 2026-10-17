@@ -23,7 +23,7 @@ production" check.
 | API | `npm run test:api` | `automation/tests/api/` missing |
 | UI | `npm run test:ui` | `automation/tests/ui/` missing |
 | E2E | `npm run test:e2e` | `automation/tests/e2e/` missing |
-| DB | per `db-tests/` README | DB type not decided → `SKIPPED — DB pending` |
+| DB | `npm run test:db` | `DB_TYPE` empty → `SKIPPED — DB pending` (DB steps inside API/E2E tests are skipped on their own) |
 
 **Selected run:** if the arguments contain a selection (CLAUDE.md
 "Working on a subset"), resolve it to TC IDs, print the list, and run

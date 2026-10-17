@@ -35,7 +35,7 @@ Run them in order from the framework folder; each one stops for approval.
 | 3 | `/qa:test-data:data-factory` | Creates dummy data | `test-data/` |
 | 4 | `/qa:automation-api:api-test-generator` then `api-test-reviewer` | Writes and stabilizes API tests | `automation/` |
 | 4 | `/qa:automation-ui:playwright-generator` then `playwright-reviewer` | Writes and stabilizes UI + E2E tests | `automation/` |
-| 5 | `/qa:database:db-validator` | DB checks (after the DB type is chosen) | `db-tests/` |
+| 5 | `/qa:database:db-validator` | DB checks (after the DB type and schema are ready) | `automation/db/` |
 | 6 | `/qa:execution:test-executor` | Runs tests, sorts failures, files bugs | Execution report + bugs |
 | 7 | `/qa:reporting:quality-reporter` | Release verdict for managers | Quality report |
 | Any | `/qa:change:impact-analysis` | Applies a product change to only what it affects | Impact report |
