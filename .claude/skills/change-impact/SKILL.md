@@ -9,9 +9,9 @@ description: Handle a requirement change from the product team without redoing e
 scratch, no ID is renumbered, and every change is recorded.
 
 **Input:** one of
-- a change request: `docs/input/changes/CR-<nnn>-<short-name>.md`
-- new answers added to `docs/input/answers.md`
-- a new version of a PRD/FRD/mockup in `docs/input/`
+- a change request: `docs/requirements/changes/CR-<nnn>-<short-name>.md`
+- new answers added to `docs/requirements/answers.md`
+- a new version of a PRD/FRD/mockup in `docs/requirements/`
 
 **Output:** `docs/changes/CR-<nnn>-impact.md` (using
 [templates/impact-template.md](templates/impact-template.md)), then —

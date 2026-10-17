@@ -9,7 +9,7 @@ background: false
 Add database checks for: $ARGUMENTS
 
 If nothing was given, cover all approved test cases with a DB layer.
-Needs DB_TYPE in .env and the schema in docs/input/db/ — if either is
+Needs DB_TYPE in .env and the schema in docs/requirements/db/ — if either is
 missing, stop and say what to add. First write
 docs/analysis/schema-check.md (schema vs requirements), then build
 automation/db/ and the @db checks, and run them read-only.

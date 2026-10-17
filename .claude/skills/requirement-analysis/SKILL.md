@@ -8,7 +8,7 @@ description: Analyze PRD/FRD documents, mockup images, and client notes for the 
 **Goal:** turn raw requirements into a clear, testable list — and find
 what is missing BEFORE anyone writes test cases.
 
-**Input:** everything under `docs/input/` (or the path given): PRD, FRD,
+**Input:** everything under `docs/requirements/` (or the path given): PRD, FRD,
 user stories, mockup images, meeting notes, emails.
 **Output:** `docs/analysis/requirement-analysis.md`, using
 [templates/output-template.md](templates/output-template.md).
@@ -29,7 +29,7 @@ it has none, use these defaults (slug in brackets):
 ## Analyzing one module or one workflow
 
 If the arguments name a module (`module:keys` or `"API keys"`), a flow
-step (`flow:3`), or a folder (`docs/input/keys/`):
+step (`flow:3`), or a folder (`docs/requirements/keys/`):
 
 1. Read all input as usual, but analyze ONLY material about that module
    or flow step. Print what you included and what you skipped.

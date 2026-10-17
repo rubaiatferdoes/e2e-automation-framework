@@ -40,7 +40,7 @@ Run them in order from the framework folder; each one stops for approval.
 | 7 | `/reporting:quality-reporter` | Release verdict for managers | `docs/reports/` |
 | Any | `/change:impact-analysis` | Applies a product change to only what it affects | `docs/changes/` |
 
-Each output folder is created the first time its step runs, so a new project shows only `docs/input/`. Setup steps and the full command reference are in the repo `README.md`.
+Each output folder is created the first time its step runs, so a new project shows only `docs/requirements/`. Setup steps and the full command reference are in the repo `README.md`.
 
 ## Example: the API keys module
 
@@ -71,7 +71,7 @@ Add a selection to any command to work on one part instead of everything; other 
 
 A change from product updates only what it affects; nothing is rebuilt.
 
-1. Save the email or chat as a change request in `docs/input/changes/`.
+1. Save the email or chat as a change request in `docs/requirements/changes/`.
 2. Run `/change:impact-analysis`. It lists every affected rule, test case and test, and waits for approval.
 3. Re-run only the commands it lists, for only the affected test cases.
 
@@ -81,6 +81,6 @@ IDs never change, so history stays traceable.
 
 QA never writes to the database: tests create data through the API like a real customer, then read the database to confirm the app stored it correctly.
 
-1. Backend adds the schema (no data) to `docs/input/db/`; DevOps adds a read-only login to `.env`.
+1. Backend adds the schema (no data) to `docs/requirements/db/`; DevOps adds a read-only login to `.env`.
 2. Run `/database:db-validator`. It first compares the schema with the requirements (e.g. PRD says 40 characters, column allows 30), then adds DB checks to the existing tests.
 3. Run `npm run test:db`. Until the database is ready, only the DB steps are skipped; everything else still runs.

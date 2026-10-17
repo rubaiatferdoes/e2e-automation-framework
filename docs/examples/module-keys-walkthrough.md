@@ -16,17 +16,17 @@ analyze-requirements module:keys → test-planner module:keys → data-factory m
 The endpoints module was analyzed last week (used F-001..F-003,
 BR-001..BR-006, TC-001..TC-011). Product sends:
 
-**`docs/input/prd-v1.2.pdf` — §4 API Keys**
+**`docs/requirements/prd-v1.2.pdf` — §4 API Keys**
 > 4.1 A customer can generate up to 5 API keys per endpoint.
 > 4.2 Each key needs a name (3–40 characters).
 > 4.3 The key is shown once after generation.
 > 4.4 A customer can revoke a key. Revoked keys stop working.
 > 4.5 Callers send the key in the `x-api-key` header.
 
-**`docs/input/mockup-05-generate-key.png`** — a "Generate key" dialog,
+**`docs/requirements/mockup-05-generate-key.png`** — a "Generate key" dialog,
 and a key list with a **"Copy key"** button on every row.
 
-**`docs/input/client-notes-2026-10-15.md`**
+**`docs/requirements/client-notes-2026-10-15.md`**
 > "Client mentioned keys should probably expire, maybe after 90 days?"
 
 ---
@@ -83,7 +83,7 @@ Blocker: Q-005 — revocation delay (can't write the "key is dead" test without 
 a guess · module index shows "keys: Analyzed — awaiting approval".
 
 **Then:** send Q-005..Q-008 to product, approve the analysis. Product
-answers Q-005 ("within 60 seconds") → add it to `docs/input/answers.md`
+answers Q-005 ("within 60 seconds") → add it to `docs/requirements/answers.md`
 → `/change:impact-analysis answers` → Q-005 closed, new rule
 **BR-012: Revoked key rejected within 60 s**.
 

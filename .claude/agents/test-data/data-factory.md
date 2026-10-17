@@ -49,7 +49,7 @@ which DAT- IDs changed.
   Values that ARE the test — boundaries, invalid formats, attack strings —
   are written literally (or with `{repeat}`) so every run uses exactly
   the same input.
-- If a DB schema exists in `docs/input/db/`, compare each field limit
+- If a DB schema exists in `docs/requirements/db/`, compare each field limit
   with its column (e.g. BR-008 says 40 chars, column is `VARCHAR(30)`).
   A mismatch is a finding to report — never shrink the data to fit.
 - Field limits come only from the requirement analysis. If a limit is

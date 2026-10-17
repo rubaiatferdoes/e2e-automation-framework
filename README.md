@@ -18,7 +18,7 @@ standards). You review the output before running the next step.
    ⚠️ Starting `claude` from any other folder (e.g. `D:\project`) gives
    "Unknown command: /..." — the commands only load from this folder.
 3. Copy `.env.example` to `.env` and fill in the **test environment** values (ask your lead).
-4. Put requirement documents (PRD, FRD, mockups, notes) in `docs/input/`.
+4. Put requirement documents (PRD, FRD, mockups, notes) in `docs/requirements/`.
 5. Check the setup works: `python scripts/verify-setup.py`
 
 ## Run the steps in order
@@ -36,7 +36,7 @@ before moving to the next step.**
 | 4b | `/automation-api:api-test-reviewer` | Reviews, fixes, and stabilizes API tests | Review report |
 | 4c | `/automation-ui:playwright-generator` | Writes UI + E2E tests (TypeScript, POM) | `automation/ui/`, `automation/tests/ui/`, `tests/e2e/` |
 | 4d | `/automation-ui:playwright-reviewer` | Reviews, fixes, and stabilizes UI tests | Review report |
-| 5 | `/database:db-validator` | DB checks — **only after the DB type + schema are in `docs/input/db/`** | `automation/db/`, schema check |
+| 5 | `/database:db-validator` | DB checks — **only after the DB type + schema are in `docs/requirements/db/`** | `automation/db/`, schema check |
 | 6 | `/execution:test-executor` | Runs everything, sorts failures, files bugs | `docs/reports/execution-*.md`, `docs/bugs/` |
 | 7 | `/reporting:quality-reporter` | Release report for managers | `docs/reports/quality-report-*.md` |
 | any | `/change:impact-analysis <CR file or "answers">` | Product sent an update → finds what it affects, updates only that | `docs/changes/CR-*-impact.md` + targeted edits |

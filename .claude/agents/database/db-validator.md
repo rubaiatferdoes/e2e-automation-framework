@@ -19,7 +19,7 @@ it correctly. Never INSERT, UPDATE, DELETE, or change the schema.
 
 | Situation | What to do |
 |---|---|
-| `DB_TYPE` empty or no schema in `docs/input/db/` | Stop. Tell the user what's missing (see `docs/input/db/README.md`). |
+| `DB_TYPE` empty or no schema in `docs/requirements/db/` | Stop. Tell the user what's missing (see `docs/requirements/db/README.md`). |
 | `DB_TYPE` set + schema present | Continue. |
 
 ## 2. Schema vs requirements (report before writing code)

@@ -22,7 +22,7 @@ The E2E flow we own:
 | Topic | Decision | Status |
 |---|---|---|
 | Customizing/editing an endpoint after creation | OUT of scope | Not confirmed if customers can edit — revisit |
-| Database type | Unknown | DB checks skipped until `DB_TYPE` + schema are provided (see `docs/input/db/README.md`) |
+| Database type | Unknown | DB checks skipped until `DB_TYPE` + schema are provided (see `docs/requirements/db/README.md`) |
 | Cross-tenant access response (403 vs 404) | Unknown | Ask product — never hard-code either |
 | Key revocation delay (how fast a key stops working) | Unknown | Ask product — poll up to that limit |
 | Automation language and design | **TypeScript + Playwright** for UI, API, and E2E in one project (`automation/`); **Page Object Model** for UI, **API Object Model** for API — see the `ts-pom-standards` skill | Team standard |
@@ -80,7 +80,7 @@ of them:
 | Module | `module:keys` or `"API keys"` | Every feature in that module (module index in the analysis) |
 | Workflow / flow step | `flow:3` (1–6, see section 1) | Everything covering that step of the E2E flow |
 | E2E scenario | `E2E-03` | The test case(s) built from that scenario |
-| Folder (step 1 only) | `docs/input/keys/` | Only the material in that folder |
+| Folder (step 1 only) | `docs/requirements/keys/` | Only the material in that folder |
 | Test case IDs | `TC-014 TC-020` | Exactly these |
 | Range | `TC-010..TC-015` | TC-010 to TC-015 inclusive |
 | Feature / rule | `F-003` or `BR-007` | Every test case whose Req IDs include it |
@@ -130,16 +130,16 @@ unless the arguments say `allow-draft`.
 
 | Folder / file | Written by |
 |---|---|
-| `docs/input/` | Humans — PRD, FRD, mockups, client notes |
+| `docs/requirements/` | Humans — PRD, FRD, mockups, client notes |
 | `docs/analysis/requirement-analysis.md` | requirement-analysis (first time), change-impact (updates) |
-| `docs/input/changes/CR-*.md` | Humans — updates from product |
+| `docs/requirements/changes/CR-*.md` | Humans — updates from product |
 | `docs/changes/CR-*-impact.md` | change-impact |
 | `docs/test-plan.md`, `docs/test-cases/` (one file per case, a folder per module), `docs/analysis/environment-recheck.md` | test-planner |
 | `test-data/` | data-factory |
 | `automation/` (shared: config, types, fixtures, utils) | whichever generator runs first; the other reuses it |
 | `automation/ui/`, `automation/tests/ui/`, `automation/tests/e2e/` | playwright-generator / playwright-reviewer |
 | `automation/api/`, `automation/tests/api/` | api-test-generator / api-test-reviewer |
-| `docs/input/db/` | Humans — DB schema export (no data) |
+| `docs/requirements/db/` | Humans — DB schema export (no data) |
 | `automation/db/`, `automation/tests/db/`, `docs/analysis/schema-check.md` | db-validator |
 | `docs/reports/` | test-executor, quality-reporter |
 | `docs/bugs/` | defect-report |

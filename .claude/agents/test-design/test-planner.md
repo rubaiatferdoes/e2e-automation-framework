@@ -46,7 +46,7 @@ those come from requirements only.
      API routes and compare them with the F- features.
    - **Screens:** `npx playwright screenshot "<url>" docs/analysis/screens/<name>.png`
      for pages reachable without login. Logged-in screens: ask the user
-     to add screenshots to `docs/input/screens/` instead.
+     to add screenshots to `docs/requirements/screens/` instead.
 4. Write `docs/analysis/environment-recheck.md`:
 
 | Item | Requirement says | Test environment shows | Verdict | Action |
