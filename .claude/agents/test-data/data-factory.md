@@ -37,9 +37,18 @@ which DAT- IDs changed.
 
 ## Rules
 
-- Names that must be unique (endpoints, keys) are NOT stored as fixed
-  values. Store a pattern instead — `"value": "qa-{tc}-{timestamp}"` —
-  and the test code fills it at runtime.
+- Some values are better generated when the test runs. Store a pattern;
+  `automation/utils/testData.ts` fills it:
+
+| Pattern | Becomes at runtime | Use for |
+|---|---|---|
+| `{qa-name}` | `qa-tc014-1729160000` | Anything that must be unique (endpoint and key names) |
+| `{repeat:k:41}` | `kkk…k` (exactly 41 characters) | Boundary lengths — no hand-typed long strings |
+| `{faker:lorem.sentence}` | A realistic sentence from Faker, seeded with the TC ID (same value every run) | Realistic filler: descriptions, labels |
+
+  Values that ARE the test — boundaries, invalid formats, attack strings —
+  are written literally (or with `{repeat}`) so every run uses exactly
+  the same input.
 - If a DB schema exists in `docs/input/db/`, compare each field limit
   with its column (e.g. BR-008 says 40 chars, column is `VARCHAR(30)`).
   A mismatch is a finding to report — never shrink the data to fit.

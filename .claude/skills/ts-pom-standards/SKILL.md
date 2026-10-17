@@ -51,7 +51,7 @@ automation/
 ```bash
 cd automation
 npm init -y
-npm i -D @playwright/test typescript @types/node dotenv ajv ajv-formats \
+npm i -D @playwright/test typescript @types/node dotenv ajv ajv-formats @faker-js/faker \
   eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
 npx playwright install chromium
 ```
@@ -169,7 +169,10 @@ test('[TC-001] create endpoint stores it for the right tenant',
 - **Test data comes from `test-data/` via `utils/testData.ts`** — never
   typed into a test. Data-driven cases loop over `dataFor('TC-005')`,
   one `test()` per record, title `[TC-005] <DAT id> <short value>`.
-  Patterns like `qa-{tc}-{timestamp}` are filled by the loader at runtime.
+  The loader fills the data factory's patterns at runtime: `{qa-name}`
+  → `qa-<tc>-<timestamp>`, `{repeat:k:41}` → 41 × "k", and
+  `{faker:<method>}` → `@faker-js/faker` seeded with the TC number, so
+  the value is realistic but identical on every run.
 - **Setup through API clients, not the UI.** Only the step under test
   uses the UI.
 - **Waits are conditions, never time:** `expect().toBeVisible()`,
