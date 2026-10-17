@@ -9,6 +9,6 @@ background: false
 Review and stabilize the API tests in: $ARGUMENTS
 
 If no path was given, use automation/api/ and automation/tests/api/ and
-check them against docs/test-cases.md. Run them (npm run test:api), fix
+check them against docs/test-cases/. Run them (npm run test:api), fix
 script bugs (never weaken assertions to force green), and apply the
 stability gate (3 consecutive green runs) before reporting.

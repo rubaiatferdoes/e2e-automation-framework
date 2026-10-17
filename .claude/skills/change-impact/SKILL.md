@@ -31,7 +31,7 @@ only after approval — targeted edits to the existing files.
 | Level | Where to search | How |
 |---|---|---|
 | Features / rules | `docs/analysis/requirement-analysis.md` | F-/BR- IDs |
-| Test cases | `docs/test-cases.md` → "Req IDs" column | rows citing those F-/BR- |
+| Test cases | `docs/test-cases/**/TC-*.md` → `requirements:` field | files citing those F-/BR- |
 | Test data | `test-data/*.json` → `rule` and `used_by` | records citing those BR-/TC- |
 | Automated tests | `automation/tests/` | `grep -rn "TC-014"` in test titles |
 | Scope decisions | `CLAUDE.md` scope table, `.env` | 403/404, revocation delay, DB, customization |
@@ -50,7 +50,7 @@ Edit in place. Keep every existing ID.
 | File | Added | Modified | Removed |
 |---|---|---|---|
 | requirement-analysis.md | New F-/BR- with the next free number | Update the text; add `(changed CR-<nnn>)` | Mark `DEPRECATED (CR-<nnn>)` — never delete |
-| test-cases.md | New TC- rows with the next free number | Update steps/expected result; add `(changed CR-<nnn>)` | Mark the row `DEPRECATED (CR-<nnn>)` — never delete |
+| `docs/test-cases/<module>/` | New TC file with the next free number | Update the file; add a line to its Change log | Set `status: deprecated` + Change log line — never delete the file |
 | Questions | — | — | Close answered Q- with the answer and source |
 
 Then add one line to the **Change log** at the end of each file you

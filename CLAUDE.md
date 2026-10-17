@@ -86,22 +86,29 @@ of them:
 | Feature / rule | `F-003` or `BR-007` | Every test case whose Req IDs include it |
 | Priority | `P0` | Every test case with that priority |
 | Type / layer | `E2E`, `Security`, `API`, `UI` | Every test case of that type or layer |
-| File | `docs/test-cases-keys.md` | Test cases in that file instead of `docs/test-cases.md` |
+| Test case folder | `docs/test-cases/keys/` | Every test case file in that folder |
 
 Selections combine with AND: `F-003 P0` = P0 cases of feature F-003.
 Agents first print the resolved list of TC IDs, then work ONLY on those
-and leave everything else untouched. `DEPRECATED` cases are skipped.
+and leave everything else untouched. Cases with `status: deprecated` are skipped.
 
 ## 7. Draft, revise, approve
 
-Every document a step produces (analysis, test plan, test cases, test
-data README, impact report) starts with a status line:
+Every document a step produces (analysis, test plan, test data README,
+impact report) starts with a status line:
 
 `> Status: DRAFT` → after the lead's review → `> Status: APPROVED — <name>, YYYY-MM-DD`
 
-The lead approves by editing that line, or by telling Claude
-"approve docs/test-cases.md" (Claude then writes the line with the
-lead's name and today's date — never on its own initiative).
+**Test cases** are one file each (`docs/test-cases/<module>/TC-*.md`), so
+their status is the `status:` field in each file's front matter:
+`draft` → `approved` → `deprecated`. The lead usually approves a whole
+module at once.
+
+The lead approves by editing the line/field, or by telling Claude, e.g.
+"approve docs/analysis/requirement-analysis.md" or "approve
+docs/test-cases/keys/" (Claude sets every case in that folder to
+`approved` and writes "Approved by: <name>, <date>" in the module
+`README.md` — never on its own initiative).
 
 **Revising a DRAFT.** If a command runs again and its output file is
 still DRAFT — usually with feedback in the arguments, e.g.
@@ -126,7 +133,7 @@ unless the arguments say `allow-draft`.
 | `docs/analysis/requirement-analysis.md` | requirement-analysis (first time), change-impact (updates) |
 | `docs/input/changes/CR-*.md` | Humans — updates from product |
 | `docs/changes/CR-*-impact.md` | change-impact |
-| `docs/test-plan.md`, `docs/test-cases.md`, `docs/analysis/environment-recheck.md` | test-planner |
+| `docs/test-plan.md`, `docs/test-cases/` (one file per case, a folder per module), `docs/analysis/environment-recheck.md` | test-planner |
 | `test-data/` | data-factory |
 | `automation/` (shared: config, types, fixtures, utils) | whichever generator runs first; the other reuses it |
 | `automation/ui/`, `automation/tests/ui/`, `automation/tests/e2e/` | playwright-generator / playwright-reviewer |

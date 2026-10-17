@@ -8,7 +8,7 @@ background: false
 
 Generate dummy test data using: $ARGUMENTS
 
-If no path was given, derive field rules from docs/test-cases.md and
+If no path was given, derive field rules from docs/test-cases/ and
 docs/analysis/. If a schema/field rules file exists, use it.
 Save datasets to test-data/ (valid-data.json, negative-data.json,
 security-data.json, README.md).

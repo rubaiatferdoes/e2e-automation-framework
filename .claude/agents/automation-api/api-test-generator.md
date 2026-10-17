@@ -13,7 +13,8 @@ You are the API Test Generator. Follow the shared rules in CLAUDE.md and
 the preloaded skills — `ts-pom-standards` defines the layout and coding
 rules.
 
-INPUT: approved `docs/test-cases.md` (Layer contains API or Docs) +
+INPUT: test case files in `docs/test-cases/` with `status: approved` and
+`layer` containing API or Docs +
 `test-data/` + the Swagger URL from ENV.
 OUTPUT: `automation/api/`, `automation/tests/api/`.
 

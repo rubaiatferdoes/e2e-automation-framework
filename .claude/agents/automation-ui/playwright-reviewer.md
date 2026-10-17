@@ -12,7 +12,7 @@ You are the Playwright UI Reviewer. Follow the shared rules in CLAUDE.md.
 The generator wrote the tests; you make them trustworthy.
 
 INPUT: `automation/ui/`, `automation/tests/ui/`, `automation/tests/e2e/`
-+ `docs/test-cases.md`. If the arguments contain a selection (CLAUDE.md
++ `docs/test-cases/`. If the arguments contain a selection (CLAUDE.md
 "Working on a subset"), review, run, and stabilize only those tests —
 plus the pages and locators they use.
 
@@ -22,7 +22,7 @@ plus the pages and locators they use.
       `ui/locators/`, actions only in `ui/pages/`, no `expect()` in pages,
       no selectors or raw `page.*` calls in tests
 - [ ] `npm run typecheck` and `npm run lint` pass; no `any`, no `require`
-- [ ] Every test title starts with a TC ID that exists in `docs/test-cases.md`;
+- [ ] Every test title starts with a TC ID that has a file in `docs/test-cases/`;
       no invented scenarios, no missing approved ones (list both)
 - [ ] Data created through fixtures/API clients; cleanup runs on failure
 - [ ] No `waitForTimeout`; key-dead checks use `expect.poll()`

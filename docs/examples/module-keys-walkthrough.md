@@ -97,7 +97,9 @@ answers Q-005 ("within 60 seconds") → add it to `docs/input/answers.md`
 
 Resolves: `module:keys → F-004..F-007, BR-007..BR-012 · flow steps 3, 5, 6 · E2E-02, E2E-03, E2E-04, E2E-07`
 
-**Appended to `docs/test-cases.md`**
+**Written to `docs/test-cases/keys/`** — one file per case, plus the
+module `README.md` index (table below) and the overall
+`docs/test-cases/README.md`.
 
 | TC ID | Title | Req IDs | Module / Flow | Pri | Type | Layer |
 |---|---|---|---|---|---|---|
@@ -109,6 +111,35 @@ Resolves: `module:keys → F-004..F-007, BR-007..BR-012 · flow steps 3, 5, 6 ·
 | TC-017 | Tenant B's key can't call tenant A's endpoint | F-007 | keys / 4 / E2E-04 | P1 | Security | API |
 | TC-018 | Missing / empty / wrong / malformed key → 401 | F-007, BR-011 | keys / 4 / E2E-02 | P0 | Negative | API |
 | TC-019 | Two keys, revoke one, the other still works | F-006 | keys / 5 / E2E-07 | P2 | E2E | API |
+
+One of those files, `docs/test-cases/keys/TC-014-revoked-key-rejected.md`:
+
+```markdown
+---
+id: TC-014
+title: Revoked key rejected within 60 s
+module: keys
+flow: [5, 6]
+e2e: E2E-03
+requirements: [F-006, BR-012]
+priority: P0
+type: E2E
+layer: [API]
+data: []
+status: draft
+---
+# TC-014: Revoked key rejected within 60 s
+
+## Precondition
+- Logged in as `qa-tenant-a`; one `qa-` endpoint with one active key
+
+## Steps
+| # | Action | Expected result |
+|---|---|---|
+| 1 | Call the endpoint with the key | 200 |
+| 2 | Revoke the key | Key shows as revoked |
+| 3 | Call again with the same key, retrying every second | 401 within 60 s; no data in the response |
+```
 
 - TC-017 is marked `ASSUMPTION — verify (Q-007)` — 403 vs 404 is still open.
 - Key expiry is NOT tested — it's an open question (Q-008), not a requirement.
@@ -142,7 +173,8 @@ Resolves: `module:keys → TC-012..TC-019`
 { "id": "DAT-030", "field": "x-api-key", "value": "not-a-real-key", "expected": "401", "rule": "BR-011", "used_by": ["TC-018"] }
 ```
 
-TC-013's "Data" column in `docs/test-cases.md` now reads `DAT-021..DAT-025`.
+`docs/test-cases/keys/TC-013-key-name-length-limits.md` now has
+`data: [DAT-021, DAT-022, DAT-023, DAT-024, DAT-025]` in its front matter.
 
 **You check:** 2, 3, 40, 41 characters all present (min−1, min, max,
 max+1) · no real keys anywhere.

@@ -11,4 +11,5 @@ Create the test scope, test plan, and manual test cases from: $ARGUMENTS
 If no analysis path was given, use docs/analysis/requirement-analysis.md.
 If the arguments contain "recheck" or a URL, first recheck the mirror
 environment read-only and write docs/analysis/environment-recheck.md.
-Write outputs to docs/test-plan.md and docs/test-cases.md.
+Write docs/test-plan.md and one file per test case in
+docs/test-cases/<module>/, plus the module and overall README indexes.

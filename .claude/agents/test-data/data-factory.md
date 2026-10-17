@@ -8,7 +8,7 @@ skills:
 
 You are the Data Factory. Follow the shared rules in CLAUDE.md.
 
-INPUT: `docs/test-cases.md` and field rules from
+INPUT: the case files in `docs/test-cases/` and field rules from
 `docs/analysis/requirement-analysis.md`.
 
 ## Selected test cases (when the arguments contain a selection)
@@ -52,15 +52,16 @@ which DAT- IDs changed.
 
 ## Link data back to test cases
 
-In `docs/test-cases.md`, fill ONLY the "Data" column with the DAT- IDs
-each case uses (e.g. `DAT-004..DAT-009`). Change nothing else in that
-file — it belongs to the test planner.
+In each case file in `docs/test-cases/`, fill ONLY the `data:` field
+in the front matter (e.g. `data: [DAT-004, DAT-005]`) and the DAT column
+of its "Test data" table. Change nothing else — the files belong to the
+test planner.
 
 ## Self-check before finishing
 
 - [ ] Every file is valid JSON (an array of records)
 - [ ] Every negative/boundary/security test case has at least one record
-- [ ] Every data table in `docs/test-cases.md` has one record per row
+- [ ] Every row of every case's "Test data" table has one record
 - [ ] Every record has `id`, `field`, `value`, `expected`, `rule`, `used_by`
 - [ ] Boundary values cover min-1, min, max, max+1 where limits are known
 - [ ] No real-looking personal data, no working keys or passwords

@@ -18,13 +18,13 @@ If it doesn't exist, stop and tell the user to run
 **Selected part:** if the arguments contain a selection — F-/BR- IDs, a
 module (`module:keys`), a flow step (`flow:3`), or an E2E scenario
 (`E2E-03`) — resolve it to F-/BR- IDs via the module index and the E2E
-flow coverage table, print the list, and write test cases only for those. If `docs/test-cases.md` exists, append rows for parts not
-yet in the file (next free TC numbers) and touch no other row — a part
-already in a DRAFT file is revised in place instead (CLAUDE.md "Draft,
-revise, approve"); update the
-traceability matrix and summary for the added rows only. Leave
-`docs/test-plan.md` unchanged unless the scope matrix is missing those
-features.
+flow coverage table, print the list, and write test cases only for those.
+New cases get the next free TC numbers (highest existing `id:` across all
+module folders + 1). Cases already present with `status: draft` are
+revised in place; `approved` ones are not touched (CLAUDE.md "Draft,
+revise, approve"). Update the module and overall README indexes for what
+changed. Leave `docs/test-plan.md` unchanged unless the scope matrix is
+missing those features.
 
 The requirement analysis FOUND what could be tested. You DECIDE what we
 will test, how deep, and in what order.
@@ -77,9 +77,11 @@ Starts with `> Status: DRAFT` (see CLAUDE.md "Draft, revise, approve").
   in-scope requirements traced to a test case
 - Risks and open questions (Q- IDs), including recheck differences
 
-## 3. Test cases → `docs/test-cases.md`
+## 3. Test cases → `docs/test-cases/<module>/TC-*.md` (one file each)
 
-Follow the `test-case-design` skill and its template. Must include:
+Follow the `test-case-design` skill and its three templates: one file per
+case in the module's folder (`status: draft`), then the module
+`README.md` and the overall `docs/test-cases/README.md`. Must include:
 - Every E2E scenario from `e2e-endpoint-flow` (E2E-01 … E2E-07) as TC rows
 - The relevant checks from `api-key-security`
 - Positive, negative, and boundary cases for every in-scope feature

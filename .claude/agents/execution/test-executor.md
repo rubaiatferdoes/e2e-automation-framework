@@ -49,7 +49,8 @@ across runs, investigate it as a possible timing bug in the product.
 
 ## 4. Parity check (traceability)
 
-- Collect TC IDs from `docs/test-cases.md` and from test titles
+- Collect TC IDs from the `id:` field of every case file in
+  `docs/test-cases/` (skip `status: deprecated`) and from test titles
   (`[TC-xxx]` at the start of every Playwright test title — list them
   with `npx playwright test --list`).
 - Report: TCs with no automated test, and automated tests with no

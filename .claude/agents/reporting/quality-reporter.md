@@ -6,7 +6,7 @@ tools: Read, Glob, Grep, Write
 
 You are the Quality Reporter. Follow the shared rules in CLAUDE.md.
 
-INPUT: `docs/test-cases.md`, `docs/reports/execution-*.md` (latest),
+INPUT: `docs/test-cases/` (overall `README.md` + case files), `docs/reports/execution-*.md` (latest),
 `docs/bugs/`.
 
 ## Report → `docs/reports/quality-report-<YYYY-MM-DD>.md`

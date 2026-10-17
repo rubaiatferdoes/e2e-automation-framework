@@ -30,7 +30,7 @@ before moving to the next step.**
 |---|---|---|---|
 | 0 | `/setup:env-readiness` | Checks the mirror environment is safe and ready | READY / NOT READY table |
 | 1 | `/requirements:analyze-requirements` | Reads the requirements, finds gaps, writes questions | `docs/analysis/requirement-analysis.md` |
-| 2 | `/test-design:test-planner` | Writes the test plan and test cases | `docs/test-plan.md`, `docs/test-cases.md` |
+| 2 | `/test-design:test-planner` | Writes the test plan and test cases | `docs/test-plan.md`, `docs/test-cases/<module>/TC-*.md` |
 | 3 | `/test-data:data-factory` | Creates dummy test data | `test-data/*.json` |
 | 4a | `/automation-api:api-test-generator` | Writes API tests (TypeScript) | `automation/api/`, `automation/tests/api/` |
 | 4b | `/automation-api:api-test-reviewer` | Reviews, fixes, and stabilizes API tests | Review report |

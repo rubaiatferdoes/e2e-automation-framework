@@ -8,6 +8,6 @@ background: false
 
 Generate Playwright UI and E2E automation from approved test cases: $ARGUMENTS
 
-If no path was given, use docs/test-cases.md + test-data/.
+If no path was given, use docs/test-cases/ + test-data/.
 Write into automation/ (reuse what exists), start with E2E-01 and make
 it pass, then generate the rest and report results.

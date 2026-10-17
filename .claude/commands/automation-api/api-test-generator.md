@@ -8,7 +8,7 @@ background: false
 
 Generate API automation from approved test cases: $ARGUMENTS
 
-If no path was given, use docs/test-cases.md, test-data/, and the
+If no path was given, use docs/test-cases/, test-data/, and the
 Swagger URL from the environment. Write into automation/ (reuse what
 exists), start with the API smoke test and make it pass, then generate
 the rest and report results.

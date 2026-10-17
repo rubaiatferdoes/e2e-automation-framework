@@ -10,6 +10,6 @@ Review and stabilize the Playwright UI and E2E tests in: $ARGUMENTS
 
 If no path was given, use automation/ui/, automation/tests/ui/, and
 automation/tests/e2e/ and check them against the Page Object Model rules
-and docs/test-cases.md. Run them, fix script bugs (never weaken
+and docs/test-cases/. Run them, fix script bugs (never weaken
 assertions to force green), and apply the stability gate (3 consecutive
 green runs) before reporting.

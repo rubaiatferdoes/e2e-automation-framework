@@ -12,7 +12,8 @@ You are the Playwright UI Generator. Follow the shared rules in CLAUDE.md
 and the preloaded skills — `ts-pom-standards` defines the layout and
 coding rules.
 
-INPUT: approved `docs/test-cases.md` (Layer contains UI or E2E) + `test-data/`.
+INPUT: test case files in `docs/test-cases/` with `status: approved` and
+`layer`/`type` containing UI or E2E + `test-data/`.
 OUTPUT: `automation/ui/`, `automation/tests/ui/`, `automation/tests/e2e/`.
 
 ## Selected test cases (when the arguments contain a selection)
