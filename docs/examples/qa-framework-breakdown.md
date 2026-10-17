@@ -27,20 +27,20 @@ Step 5 waits until the database type is chosen. Product updates can enter at any
 
 Run them in order from the framework folder; each one stops for approval.
 
-| Step | Command | What it does | Main output |
+| Step | Command | What it does | Output (location) |
 | --- | --- | --- | --- |
-| 0 | `/setup:env-readiness` | Checks the mirror is ready and is not production | READY / NOT READY |
-| 1 | `/requirements:analyze-requirements` | Finds features, rules, gaps and questions | Requirement analysis |
-| 2 | `/test-design:test-planner` | Decides the scope, writes test cases | Test plan + test cases |
+| 0 | `/setup:env-readiness` | Checks the mirror is ready and is not production | READY / NOT READY table (in chat) |
+| 1 | `/requirements:analyze-requirements` | Finds features, rules, gaps and questions | `docs/analysis/requirement-analysis.md` |
+| 2 | `/test-design:test-planner` | Decides the scope, writes test cases | `docs/test-plan.md`, `docs/test-cases/<module>/TC-*.md` (one file per case) |
 | 3 | `/test-data:data-factory` | Creates dummy data | `test-data/` |
-| 4 | `/automation-api:api-test-generator` then `api-test-reviewer` | Writes and stabilizes API tests | `automation/` |
-| 4 | `/automation-ui:playwright-generator` then `playwright-reviewer` | Writes and stabilizes UI + E2E tests | `automation/` |
-| 5 | `/database:db-validator` | DB checks (after the DB type and schema are ready) | `automation/db/` |
-| 6 | `/execution:test-executor` | Runs tests, sorts failures, files bugs | Execution report + bugs |
-| 7 | `/reporting:quality-reporter` | Release verdict for managers | Quality report |
-| Any | `/change:impact-analysis` | Applies a product change to only what it affects | Impact report |
+| 4 | `/automation-api:api-test-generator` then `api-test-reviewer` | Writes and stabilizes API tests | `automation/api/`, `automation/tests/api/` |
+| 4 | `/automation-ui:playwright-generator` then `playwright-reviewer` | Writes and stabilizes UI + E2E tests | `automation/ui/`, `automation/tests/ui/`, `automation/tests/e2e/` |
+| 5 | `/database:db-validator` | DB checks (after the DB type and schema are ready) | `automation/db/`, `docs/analysis/schema-check.md` |
+| 6 | `/execution:test-executor` | Runs tests, sorts failures, files bugs | `docs/reports/`, `docs/bugs/` |
+| 7 | `/reporting:quality-reporter` | Release verdict for managers | `docs/reports/` |
+| Any | `/change:impact-analysis` | Applies a product change to only what it affects | `docs/changes/` |
 
-Setup steps and the full command reference are in the repo `README.md`.
+Each output folder is created the first time its step runs, so a new project shows only `docs/input/`. Setup steps and the full command reference are in the repo `README.md`.
 
 ## Example: the API keys module
 
