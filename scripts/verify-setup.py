@@ -3,11 +3,11 @@
 Usage (from the project root):
     python scripts/verify-setup.py          # static check, free, ~1 second
     python scripts/verify-setup.py --live   # also runs every command headless (~$0.10 total)
-    python scripts/verify-setup.py --live /qa:setup:env-readiness   # live-check only the commands named
+    python scripts/verify-setup.py --live /setup:env-readiness   # live-check only the commands named
 
 Static check:  every command points to an agent/skill that exists, every
 agent's preloaded skills exist, every file a skill links to exists.
-Live check:    runs each /qa: command in DRY-RUN mode and confirms the
+Live check:    runs each / command in DRY-RUN mode and confirms the
 right agent ran with the right skills (or the right skill was loaded).
 """
 import json

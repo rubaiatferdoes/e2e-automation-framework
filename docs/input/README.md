@@ -1,6 +1,6 @@
 # docs/input — put requirement material here
 
-Everything in this folder is read by `/qa:requirements:analyze-requirements`.
+Everything in this folder is read by `/requirements:analyze-requirements`.
 
 ## What to add
 
@@ -23,7 +23,7 @@ Word (.docx) and Excel (.xlsx) files: export to PDF first.
 ## answers.md template
 
 When product answers the questions from the analysis, record them here
-and run `/qa:change:impact-analysis answers` (not the full analysis
+and run `/change:impact-analysis answers` (not the full analysis
 again). Bigger changes from product go in `changes/` — see
 `changes/README.md`.
 

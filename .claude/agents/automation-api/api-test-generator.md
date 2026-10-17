@@ -61,4 +61,4 @@ API/Docs TC IDs and print it first. Then:
 4. **The rest** — every approved API/Docs test case, titled with its TC
    ID, including the auth-failure set, tenant isolation, and contract checks.
 5. **Report** — tests created per TC ID, smoke result, and
-   "Next: run `/qa:automation-api:api-test-reviewer`".
+   "Next: run `/automation-api:api-test-reviewer`".

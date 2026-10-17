@@ -67,5 +67,5 @@ file — it belongs to the test planner.
 
 Report: record counts per file, TC IDs covered, any test case with no
 data and why, open assumptions. End with: "Ready for review. After
-approval, run `/qa:automation-api:api-test-generator` and
-`/qa:automation-ui:playwright-generator`."
+approval, run `/automation-api:api-test-generator` and
+`/automation-ui:playwright-generator`."

@@ -34,7 +34,7 @@ and a key list with a **"Copy key"** button on every row.
 ## Step 1 — Analyze only the keys module
 
 ```
-/qa:requirements:analyze-requirements module:keys
+/requirements:analyze-requirements module:keys
 ```
 
 Runs in your chat. Reads all input, analyzes only key-related material,
@@ -84,7 +84,7 @@ a guess · module index shows "keys: Analyzed — awaiting approval".
 
 **Then:** send Q-005..Q-008 to product, approve the analysis. Product
 answers Q-005 ("within 60 seconds") → add it to `docs/input/answers.md`
-→ `/qa:change:impact-analysis answers` → Q-005 closed, new rule
+→ `/change:impact-analysis answers` → Q-005 closed, new rule
 **BR-012: Revoked key rejected within 60 s**.
 
 ---
@@ -92,7 +92,7 @@ answers Q-005 ("within 60 seconds") → add it to `docs/input/answers.md`
 ## Step 2 — Test cases for the keys module
 
 ```
-/qa:test-design:test-planner module:keys
+/test-design:test-planner module:keys
 ```
 
 Resolves: `module:keys → F-004..F-007, BR-007..BR-012 · flow steps 3, 5, 6 · E2E-02, E2E-03, E2E-04, E2E-07`
@@ -121,7 +121,7 @@ Resolves: `module:keys → F-004..F-007, BR-007..BR-012 · flow steps 3, 5, 6 ·
 ## Step 3 — Test data for the keys module
 
 ```
-/qa:test-data:data-factory module:keys
+/test-data:data-factory module:keys
 ```
 
 Resolves: `module:keys → TC-012..TC-019`
@@ -152,7 +152,7 @@ max+1) · no real keys anywhere.
 ## Step 4 — API automation for the keys module
 
 ```
-/qa:automation-api:api-test-generator module:keys
+/automation-api:api-test-generator module:keys
 ```
 
 Resolves: `module:keys → API cases TC-012, 013, 014, 015, 017, 018, 019`
@@ -189,10 +189,10 @@ test('[TC-014] revoked key rejected within 60 s',
 ```
 Created 7 tests for 7 TC IDs · smoke (E2E-01 API part) passed
 TC-013 runs 5 times (DAT-021..025)
-Next: /qa:automation-api:api-test-reviewer module:keys
+Next: /automation-api:api-test-reviewer module:keys
 ```
 
-Recommended before execution: `/qa:automation-api:api-test-reviewer module:keys`
+Recommended before execution: `/automation-api:api-test-reviewer module:keys`
 (3 green runs in a row = STABLE).
 
 ---
@@ -200,7 +200,7 @@ Recommended before execution: `/qa:automation-api:api-test-reviewer module:keys`
 ## Step 5 — Run the keys module
 
 ```
-/qa:execution:test-executor module:keys
+/execution:test-executor module:keys
 ```
 
 Readiness → READY · typecheck ✓ · runs `npx playwright test --grep @mod-keys`,
@@ -221,7 +221,7 @@ Failures
 Bugs raised: BUG-003 [API Key] Revoked key still works after 60 seconds — Sev-2
 
 Parity (keys only)
- TC-016 (UI, masked key) — no automated test yet → /qa:automation-ui:playwright-generator TC-016
+ TC-016 (UI, masked key) — no automated test yet → /automation-ui:playwright-generator TC-016
 ```
 
 7 tests, but TC-013 runs once per data row (5) → 11 runs: 10 passed, 1 failed.
@@ -242,6 +242,6 @@ masked (`sk_...a1b2`), and timestamps.
 | **Unknowns stay visible** | Expiry (Q-008) and 403-vs-404 (Q-007) are tracked, not guessed |
 | **Coverage gaps get caught** | Parity spotted that TC-016 still needs UI automation |
 
-**Next for this module:** `/qa:automation-ui:playwright-generator TC-016` →
-after the fix, `/qa:execution:test-executor TC-014` → when all P0/P1 pass,
-`/qa:reporting:quality-reporter module:keys`.
+**Next for this module:** `/automation-ui:playwright-generator TC-016` →
+after the fix, `/execution:test-executor TC-014` → when all P0/P1 pass,
+`/reporting:quality-reporter module:keys`.

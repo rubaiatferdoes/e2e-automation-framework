@@ -1,6 +1,6 @@
 # docs/input/db — database schema goes here
 
-When the database is decided, add these, then run `/qa:database:db-validator`.
+When the database is decided, add these, then run `/database:db-validator`.
 
 ## 1. Files to add here
 

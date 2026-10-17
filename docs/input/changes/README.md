@@ -1,7 +1,7 @@
 # docs/input/changes — updates from the product team
 
 One file per change: `CR-<nnn>-<short-name>.md` (next free number).
-Then run `/qa:change:impact-analysis docs/input/changes/CR-<nnn>-<short-name>.md`.
+Then run `/change:impact-analysis docs/input/changes/CR-<nnn>-<short-name>.md`.
 
 ## Template
 

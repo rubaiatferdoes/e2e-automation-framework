@@ -62,7 +62,7 @@ The E2E flow we own:
 IDs are permanent: never renumbered, never reused. A changed item keeps
 its ID and gets `(changed CR-003)`; a removed one is marked
 `DEPRECATED (CR-003)`, never deleted. `CR-001` = a change request from
-product, handled by `/qa:change:impact-analysis`.
+product, handled by `/change:impact-analysis`.
 
 Every automated test name includes its TC ID, e.g.
 `[TC-014] create endpoint with valid name succeeds`.
@@ -105,13 +105,13 @@ lead's name and today's date — never on its own initiative).
 
 **Revising a DRAFT.** If a command runs again and its output file is
 still DRAFT — usually with feedback in the arguments, e.g.
-`/qa:test-design:test-planner module:keys feedback: merge TC-013 and TC-015`
+`/test-design:test-planner module:keys feedback: merge TC-013 and TC-015`
 — revise the file IN PLACE: apply the feedback, keep the IDs of items
 that stay, delete items the feedback removes, never append duplicates.
 End with a short "Changed in this revision" list.
 
 **APPROVED is locked.** Never rewrite an APPROVED file by re-running its
-step. Changes go through `/qa:change:impact-analysis`. Only an explicit
+step. Changes go through `/change:impact-analysis`. Only an explicit
 "rework the approved …" from the lead resets it to DRAFT.
 
 **Inputs must be approved.** Before using another step's output, check
@@ -139,22 +139,22 @@ unless the arguments say `allow-draft`.
 ## 9. Pipeline (a human approves each step before the next)
 
 ```
-0. /qa:setup:env-readiness        is the product ready to test?
-1. /qa:requirements:analyze-requirements
-2. /qa:test-design:test-planner
-3. /qa:test-data:data-factory
-4. /qa:automation-ui:playwright-generator  → playwright-reviewer
-   /qa:automation-api:api-test-generator     → api-test-reviewer
-5. /qa:database:db-validator      (only after the DB type is known)
-6. /qa:execution:test-executor
-7. /qa:reporting:quality-reporter
+0. /setup:env-readiness        is the product ready to test?
+1. /requirements:analyze-requirements
+2. /test-design:test-planner
+3. /test-data:data-factory
+4. /automation-ui:playwright-generator  → playwright-reviewer
+   /automation-api:api-test-generator     → api-test-reviewer
+5. /database:db-validator      (only after the DB type is known)
+6. /execution:test-executor
+7. /reporting:quality-reporter
 ```
 
 **When product sends an update** (at any point after step 1 is approved),
 don't restart the pipeline:
 
 ```
-/qa:change:impact-analysis <CR file>   → approve → re-run only the
+/change:impact-analysis <CR file>   → approve → re-run only the
 steps it lists, with only the affected TC IDs
 ```
 

@@ -21,7 +21,7 @@ Each step hands a file to the next, and a person approves it first:
  Every arrow is a review gate.  * waiting on a product decision
 ```
 
-Step 5 waits until the database type is chosen. Product updates can enter at any point through `/qa:change:impact-analysis`.
+Step 5 waits until the database type is chosen. Product updates can enter at any point through `/change:impact-analysis`.
 
 ## Commands
 
@@ -29,16 +29,16 @@ Run them in order from the framework folder; each one stops for approval.
 
 | Step | Command | What it does | Main output |
 | --- | --- | --- | --- |
-| 0 | `/qa:setup:env-readiness` | Checks the mirror is ready and is not production | READY / NOT READY |
-| 1 | `/qa:requirements:analyze-requirements` | Finds features, rules, gaps and questions | Requirement analysis |
-| 2 | `/qa:test-design:test-planner` | Decides the scope, writes test cases | Test plan + test cases |
-| 3 | `/qa:test-data:data-factory` | Creates dummy data | `test-data/` |
-| 4 | `/qa:automation-api:api-test-generator` then `api-test-reviewer` | Writes and stabilizes API tests | `automation/` |
-| 4 | `/qa:automation-ui:playwright-generator` then `playwright-reviewer` | Writes and stabilizes UI + E2E tests | `automation/` |
-| 5 | `/qa:database:db-validator` | DB checks (after the DB type and schema are ready) | `automation/db/` |
-| 6 | `/qa:execution:test-executor` | Runs tests, sorts failures, files bugs | Execution report + bugs |
-| 7 | `/qa:reporting:quality-reporter` | Release verdict for managers | Quality report |
-| Any | `/qa:change:impact-analysis` | Applies a product change to only what it affects | Impact report |
+| 0 | `/setup:env-readiness` | Checks the mirror is ready and is not production | READY / NOT READY |
+| 1 | `/requirements:analyze-requirements` | Finds features, rules, gaps and questions | Requirement analysis |
+| 2 | `/test-design:test-planner` | Decides the scope, writes test cases | Test plan + test cases |
+| 3 | `/test-data:data-factory` | Creates dummy data | `test-data/` |
+| 4 | `/automation-api:api-test-generator` then `api-test-reviewer` | Writes and stabilizes API tests | `automation/` |
+| 4 | `/automation-ui:playwright-generator` then `playwright-reviewer` | Writes and stabilizes UI + E2E tests | `automation/` |
+| 5 | `/database:db-validator` | DB checks (after the DB type and schema are ready) | `automation/db/` |
+| 6 | `/execution:test-executor` | Runs tests, sorts failures, files bugs | Execution report + bugs |
+| 7 | `/reporting:quality-reporter` | Release verdict for managers | Quality report |
+| Any | `/change:impact-analysis` | Applies a product change to only what it affects | Impact report |
 
 Setup steps and the full command reference are in the repo `README.md`.
 
@@ -72,7 +72,7 @@ Add a selection to any command to work on one part instead of everything; other 
 A change from product updates only what it affects; nothing is rebuilt.
 
 1. Save the email or chat as a change request in `docs/input/changes/`.
-2. Run `/qa:change:impact-analysis`. It lists every affected rule, test case and test, and waits for approval.
+2. Run `/change:impact-analysis`. It lists every affected rule, test case and test, and waits for approval.
 3. Re-run only the commands it lists, for only the affected test cases.
 
 IDs never change, so history stays traceable.
@@ -82,5 +82,5 @@ IDs never change, so history stays traceable.
 QA never writes to the database: tests create data through the API like a real customer, then read the database to confirm the app stored it correctly.
 
 1. Backend adds the schema (no data) to `docs/input/db/`; DevOps adds a read-only login to `.env`.
-2. Run `/qa:database:db-validator`. It first compares the schema with the requirements (e.g. PRD says 40 characters, column allows 30), then adds DB checks to the existing tests.
+2. Run `/database:db-validator`. It first compares the schema with the requirements (e.g. PRD says 40 characters, column allows 30), then adds DB checks to the existing tests.
 3. Run `npm run test:db`. Until the database is ready, only the DB steps are skipped; everything else still runs.

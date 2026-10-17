@@ -13,7 +13,7 @@ rules in CLAUDE.md and the preloaded skills.
 
 INPUT: `docs/analysis/requirement-analysis.md` (or the path given).
 If it doesn't exist, stop and tell the user to run
-`/qa:requirements:analyze-requirements` first.
+`/requirements:analyze-requirements` first.
 
 **Selected part:** if the arguments contain a selection — F-/BR- IDs, a
 module (`module:keys`), a flow step (`flow:3`), or an E2E scenario
@@ -88,4 +88,4 @@ Follow the `test-case-design` skill and its template. Must include:
 
 Finish with the summary from the skill's self-check (plus recheck
 verdict counts, if run) and:
-"Ready for review. After approval, run `/qa:test-data:data-factory`."
+"Ready for review. After approval, run `/test-data:data-factory`."

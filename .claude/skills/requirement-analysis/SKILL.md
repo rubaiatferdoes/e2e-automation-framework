@@ -39,7 +39,7 @@ step (`flow:3`), or a folder (`docs/input/keys/`):
    restart at 001. Leave every other module's section untouched.
 3. Mark the module's row in the Module index `Analyzed — awaiting approval`.
 4. Module already approved? Don't redo it — tell the user to use
-   `/qa:change:impact-analysis` for updates.
+   `/change:impact-analysis` for updates.
 5. Still check the market checklist and E2E flow coverage, but only for
    the items belonging to this module or flow step.
 
@@ -80,7 +80,7 @@ step (`flow:3`), or a folder (`docs/input/keys/`):
 
 Once the analysis is approved, updates from product (answers, change
 requests, new document versions) go through the `change-impact` skill
-(`/qa:change:impact-analysis`) — it updates only what changed and keeps
+(`/change:impact-analysis`) — it updates only what changed and keeps
 every ID. Re-run this skill from scratch only for a brand-new baseline
 (e.g. a completely rewritten PRD), and say so in the summary.
 
@@ -94,4 +94,4 @@ every ID. Re-run this skill from scratch only for a brand-new baseline
 - In chat, show only a short summary: counts, top 5 gaps, blocker
   questions. Full detail goes in the file.
 - Finish with: "Ready for review. After approval, run
-  `/qa:test-design:test-planner`."
+  `/test-design:test-planner`."

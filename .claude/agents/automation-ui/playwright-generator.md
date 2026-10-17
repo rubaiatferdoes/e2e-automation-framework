@@ -43,4 +43,4 @@ UI/E2E TC IDs and print it first. Then:
    with its TC ID.
 5. **Report** — tests created per TC ID, smoke result, any test case you
    could not automate and why, and
-   "Next: run `/qa:automation-ui:playwright-reviewer`".
+   "Next: run `/automation-ui:playwright-reviewer`".

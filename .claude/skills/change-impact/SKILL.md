@@ -61,10 +61,10 @@ Instead, finish with the exact follow-up commands for ONLY the affected
 IDs, for example:
 
 ```
-/qa:test-data:data-factory TC-014 TC-031
-/qa:automation-api:api-test-generator TC-014 TC-031
-/qa:automation-ui:playwright-generator TC-031
-/qa:execution:test-executor TC-014 TC-031
+/test-data:data-factory TC-014 TC-031
+/automation-api:api-test-generator TC-014 TC-031
+/automation-ui:playwright-generator TC-031
+/execution:test-executor TC-014 TC-031
 ```
 
 …and, if a scope decision changed, tell the lead which line of

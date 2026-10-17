@@ -29,7 +29,7 @@ Unaffected: everything else (<n> test cases, <n> automated tests).
 
 ## 4. Follow-up commands (after approval)
 ```
-/qa:test-data:data-factory TC-014 TC-040
-/qa:automation-api:api-test-generator TC-014 TC-040
-/qa:execution:test-executor TC-014 TC-040
+/test-data:data-factory TC-014 TC-040
+/automation-api:api-test-generator TC-014 TC-040
+/execution:test-executor TC-014 TC-040
 ```
