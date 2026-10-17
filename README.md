@@ -17,7 +17,7 @@ standards). You review the output before running the next step.
    ```
    ⚠️ Starting `claude` from any other folder (e.g. `D:\project`) gives
    "Unknown command: /..." — the commands only load from this folder.
-3. Copy `.env.example` to `.env` and fill in the **mirror** values (ask your lead).
+3. Copy `.env.example` to `.env` and fill in the **test environment** values (ask your lead).
 4. Put requirement documents (PRD, FRD, mockups, notes) in `docs/input/`.
 5. Check the setup works: `python scripts/verify-setup.py`
 
@@ -28,7 +28,7 @@ before moving to the next step.**
 
 | Step | Command | What it does | You get |
 |---|---|---|---|
-| 0 | `/setup:env-readiness` | Checks the mirror environment is safe and ready | READY / NOT READY table |
+| 0 | `/setup:env-readiness` | Checks the test environment is ready | READY / NOT READY table |
 | 1 | `/requirements:analyze-requirements` | Reads the requirements, finds gaps, writes questions | `docs/analysis/requirement-analysis.md` |
 | 2 | `/test-design:test-planner` | Writes the test plan and test cases | `docs/test-plan.md`, `docs/test-cases/<module>/TC-*.md` |
 | 3 | `/test-data:data-factory` | Creates dummy test data | `test-data/*.json` |
@@ -64,7 +64,7 @@ npm run report                    # open the HTML report
 
 ## Rules you must never break
 
-- **Mirror environment only** — never production.
+- **Test environment only.**
 - **Dummy data only** — never real customer data.
 - Tests create their own `qa-` data and delete it.
 - Never change a test's expected result just to make it pass — log a bug.

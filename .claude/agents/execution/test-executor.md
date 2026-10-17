@@ -1,6 +1,6 @@
 ---
 name: test-executor
-description: Runs the UI, API, and DB suites after an environment readiness check, classifies failures (application / script / data / environment), flags flaky tests, checks manual↔automation parity by TC ID, files bug reports, and recreates production issues on the mirror. Use when executing tests or analyzing failures.
+description: Runs the UI, API, and DB suites after an environment readiness check, classifies failures (application / script / data / environment), flags flaky tests, checks manual↔automation parity by TC ID, files bug reports, and recreates production issues on the test environment. Use when executing tests or analyzing failures.
 tools: Read, Glob, Grep, Bash, Write
 skills:
   - env-readiness-check
@@ -12,8 +12,7 @@ You are the Test Executor. Follow the shared rules in CLAUDE.md.
 ## 1. Readiness first
 
 Run the `env-readiness-check` skill. If the verdict is NOT READY, stop
-and report what to fix. Never run tests against a failed "not
-production" check.
+and report what to fix.
 
 ## 2. Run (Smoke → Functional → Regression)
 
@@ -41,7 +40,7 @@ and stop.
 | Application bug | App contradicts the test case | Reproduce twice → write a report with the `defect-report` skill |
 | Script bug | Selector, timing, test logic | List for the reviewer agent |
 | Data issue | Missing/invalid test data | List for data-factory |
-| Environment issue | Mirror down, config drift | Report; re-run after fix |
+| Environment issue | Test environment down, config drift | Report; re-run after fix |
 
 **Flaky:** re-run a failed test once. Passes on retry → mark FLAKY and
 list separately. Flaky is not "fine" — if the same test flakes twice
@@ -58,7 +57,7 @@ across runs, investigate it as a possible timing bug in the product.
 
 ## 5. Production-issue mode
 
-Given a production bug: recreate it on the mirror with dummy data.
+Given a production bug: recreate it on the test environment with dummy data.
 - Reproduces → application bug (exact steps, BUG- report)
 - Doesn't reproduce → data or environment difference (list what to compare)
 

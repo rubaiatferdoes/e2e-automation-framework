@@ -57,11 +57,11 @@ Call the endpoint and check:
 sends hundreds of valid and invalid requests automatically:
 
 ```bash
-st run openapi.json --url "$MIRROR_API_URL" -H "x-api-key: $QA_API_KEY" --checks all
+st run openapi.json --url "$TEST_ENV_API_URL" -H "x-api-key: $QA_API_KEY" --checks all
 ```
 
 Any 5xx or response that doesn't match the spec = a finding.
-Mirror environment only — it sends a lot of traffic.
+Test environment only — it sends a lot of traffic.
 
 ## Step 5 — The docs page itself (UI)
 

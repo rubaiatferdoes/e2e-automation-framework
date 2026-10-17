@@ -2,7 +2,7 @@
 
 > Approved by: — (set when the lead approves this module)
 
-Based on `docs/analysis/requirement-analysis.md` · Environment: mirror only · Data: dummy only
+Based on `docs/analysis/requirement-analysis.md` · Environment: test environment only · Data: dummy only
 
 ## Test cases
 | TC ID | Title | Priority | Type | Layer | Flow | Status |

@@ -13,7 +13,7 @@ the first try, without asking QA anything.
 
 ## Before writing
 
-- [ ] Reproduced at least twice on the mirror environment
+- [ ] Reproduced at least twice on the test environment
 - [ ] It's an **application bug** — not a script, data, or environment
       problem (see the classification in `test-executor`)
 - [ ] Searched `docs/bugs/` — not already reported

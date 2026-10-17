@@ -16,12 +16,12 @@ When the database is decided, add these, then run `/database:db-validator`.
 
 ```
 DB_TYPE=postgres            # postgres | mysql | mssql
-DB_URL=<mirror DB host:port/dbname>
+DB_URL=<test environment DB host:port/dbname>
 DB_READONLY_USER=<user with SELECT rights only>
 DB_READONLY_PASSWORD=<password>
 ```
 
-Ask DevOps for a **read-only** user on the **mirror** database. If the
+Ask DevOps for a **read-only** user on the **test environment** database. If the
 user can write, the DB validator stops and reports it.
 
 ## 3. Tell the framework the DB is decided

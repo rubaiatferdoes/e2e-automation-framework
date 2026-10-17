@@ -29,7 +29,7 @@ Run them in order from the framework folder; each one stops for approval.
 
 | Step | Command | What it does | Output (location) |
 | --- | --- | --- | --- |
-| 0 | `/setup:env-readiness` | Checks the mirror is ready and is not production | READY / NOT READY table (in chat) |
+| 0 | `/setup:env-readiness` | Checks the test environment is ready | READY / NOT READY table (in chat) |
 | 1 | `/requirements:analyze-requirements` | Finds features, rules, gaps and questions | `docs/analysis/requirement-analysis.md` |
 | 2 | `/test-design:test-planner` | Decides the scope, writes test cases | `docs/test-plan.md`, `docs/test-cases/<module>/TC-*.md` (one file per case) |
 | 3 | `/test-data:data-factory` | Creates dummy data | `test-data/` |

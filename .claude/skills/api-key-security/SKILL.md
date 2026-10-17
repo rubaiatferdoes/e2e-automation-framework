@@ -8,7 +8,7 @@ description: Security test checklist for API keys and tenant isolation, mapped t
 **Goal:** a key only ever opens its own customer's endpoints — and stops
 working the moment it should.
 
-Mirror environment only. Attack-style inputs (injection strings, huge
+Test environment only. Attack-style inputs (injection strings, huge
 payloads) only against `qa-` data you created.
 
 ## 1. Key lifecycle

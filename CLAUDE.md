@@ -29,7 +29,7 @@ The E2E flow we own:
 
 ## 3. Safety rules (never break these)
 
-- Test ONLY on the mirror environment. Never production.
+- Test ONLY on the test environment.
 - Use ONLY dummy data. Never real customer data.
 - Every test creates its own data with the `qa-` prefix
   (e.g. `qa-tc014-lz3k9a-w2-x7f1` — test case, time, worker, random) and deletes it afterwards.

@@ -30,7 +30,7 @@ OUTPUT: `automation/api/`, `automation/tests/api/`.
 - **Expected values = the test case.** Not the Swagger, not a captured response.
 - The generated Swagger is tested with the `api-contract-check` skill
   (valid spec, matches what was created, matches runtime behaviour).
-- You MAY call the mirror once to learn real field names for writing
+- You MAY call the test environment once to learn real field names for writing
   types and schemas — but if a real value disagrees with the test case,
   that is a finding to report, not a new expected value.
 

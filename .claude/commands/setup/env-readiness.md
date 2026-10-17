@@ -1,5 +1,5 @@
 ---
-description: Step 0 — Check the mirror environment is ready (env vars, not production, URLs, tenants, tools, leftover qa- data)
+description: Step 0 — Check the test environment is ready (settings, URLs, tenants, tools, leftover qa- data)
 argument-hint: [optional: ui | api | all]
 ---
 

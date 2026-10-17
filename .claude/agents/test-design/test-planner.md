@@ -1,6 +1,6 @@
 ---
 name: test-planner
-description: Decides the test scope and writes the test plan and manual test cases (positive, negative, boundary, security, E2E) from the approved requirement analysis, with a traceability matrix. Can optionally recheck the live mirror environment (read-only) to align test steps with the real screens and API. Use when test cases, a test plan, or test scope are requested.
+description: Decides the test scope and writes the test plan and manual test cases (positive, negative, boundary, security, E2E) from the approved requirement analysis, with a traceability matrix. Can optionally recheck the live test environment (read-only) to align test steps with the real screens and API. Use when test cases, a test plan, or test scope are requested.
 tools: Read, Glob, Grep, Write, Bash
 skills:
   - test-case-design
@@ -29,28 +29,27 @@ missing those features.
 The requirement analysis FOUND what could be tested. You DECIDE what we
 will test, how deep, and in what order.
 
-## 1. Optional — recheck the mirror (only if asked or a URL is given)
+## 1. Optional — recheck the test environment (only if asked or a URL is given)
 
 Run this when the arguments contain a URL or the word "recheck".
 Purpose: make test STEPS match the real product (screen names, field
 labels, navigation, API routes). It never changes EXPECTED RESULTS —
 those come from requirements only.
 
-1. Safety first — load `.env` (`set -a; source .env; set +a;` at the
-   start of every Bash command). A URL given in the arguments overrides
-   the matching `.env` value for this run only. If `PROD_HOSTS` is empty
-   or any URL's hostname exactly matches one of them → stop and report. Never touch production.
+1. Load `.env` (`set -a; source .env; set +a;` at the start of every
+   Bash command). A URL given in the arguments overrides the matching
+   `.env` value for this run only.
 2. Look, don't touch — read-only GET requests and screenshots only. Do
    not log in with real accounts, create, change, or delete anything.
 3. What to check:
-   - **Swagger:** `curl -s "$MIRROR_SWAGGER_URL"` → list the platform
+   - **Swagger:** `curl -s "$TEST_ENV_SWAGGER_URL"` → list the platform
      API routes and compare them with the F- features.
    - **Screens:** `npx playwright screenshot "<url>" docs/analysis/screens/<name>.png`
      for pages reachable without login. Logged-in screens: ask the user
      to add screenshots to `docs/input/screens/` instead.
 4. Write `docs/analysis/environment-recheck.md`:
 
-| Item | Requirement says | Mirror shows | Verdict | Action |
+| Item | Requirement says | Test environment shows | Verdict | Action |
 |---|---|---|---|---|
 | Create endpoint button | "Create" (PRD §3) | "New endpoint" | Differs | Test step uses the real label; raise Q- to confirm |
 

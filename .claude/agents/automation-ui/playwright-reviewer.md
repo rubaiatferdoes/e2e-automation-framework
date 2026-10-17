@@ -39,7 +39,7 @@ plus the pages and locators they use.
 | Application bug | App contradicts the test case | Write a report with the `defect-report` skill. Never weaken the assertion |
 | Script bug | Bad selector, timing, logic | Fix it (selector → one place in `ui/locators/`) |
 | Data issue | Wrong/missing test data | Fix data usage |
-| Environment issue | Mirror down, config drift | Report it; don't code around it |
+| Environment issue | Test environment down, config drift | Report it; don't code around it |
 
 3. Re-run until green (except application bugs).
 

@@ -19,8 +19,7 @@ automation/
 ├── config/env.ts               typed ENV object — loads ../.env with dotenv, then reads process.env;
 │                               REQUIRED values missing → clear error naming them;
 │                               OPTIONAL ones (revocation delay, cross-tenant status,
-│                               DB_*) may be empty; also refuses to start if a
-│                               mirror hostname equals one in PROD_HOSTS
+│                               DB_*) may be empty
 ├── types/                      Endpoint, ApiKey, ErrorResponse ...
 ├── ui/                         ── PAGE OBJECT MODEL ──
 │   ├── locators/<feature>.locators.ts   selector strings ONLY
@@ -215,7 +214,7 @@ Verify in the real DOM first. Priority: `data-testid` → id → role/label
 - timeout 60s (key-dead tests raise their own — see section 4), expect 10s, `fullyParallel: true`, `retries: process.env.CI ? 2 : 0`.
 - Reporter: list + HTML to `reports/html` (`open: 'never'`).
 - Screenshot + trace on failure → `reports/artifacts`.
-- `baseURL` from ENV; `ignoreHTTPSErrors: true` for the mirror.
+- `baseURL` from ENV; `ignoreHTTPSErrors: true` for the test environment.
 
 ## 7. Commands
 
