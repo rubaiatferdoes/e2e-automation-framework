@@ -1,6 +1,6 @@
 ---
 name: requirement-analysis
-description: Analyze PRD/FRD documents, mockup images, and client notes for the API endpoint builder product. Produces features (F-), business rules (BR-), E2E flow coverage, missed scenarios, a market-standard comparison, and prioritized questions (Q-). Use when asked to analyze requirements, find test scope, coverage areas, gaps, or missed scenarios.
+description: Analyze PRD/FRD documents, mockup images, and client notes for the API endpoint builder product. Produces features (F-), business rules (BR-), E2E flow coverage, missed scenarios, a market-standard comparison, and questions for product (Q-), most important first. Use when asked to analyze requirements, find test scope, coverage areas, gaps, or missed scenarios.
 ---
 
 # Requirement Analysis

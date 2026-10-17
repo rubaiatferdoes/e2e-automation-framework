@@ -29,7 +29,7 @@ before moving to the next step.**
 | Step | Command | What it does | You get |
 |---|---|---|---|
 | 0 | `/setup:env-readiness` | Checks the test environment is ready | READY / NOT READY table |
-| 1 | `/requirements:analyze-requirements` | Reads the requirements, finds gaps, writes questions | `docs/analysis/requirement-analysis.md` |
+| 1 | `/requirements:analyze-requirements` | Reads the requirements, finds gaps, writes questions for product — most important first | `docs/analysis/requirement-analysis.md` |
 | 2 | `/test-design:test-planner` | Writes the test plan and test cases | `docs/test-plan.md`, `docs/test-cases/<module>/TC-*.md` |
 | 3 | `/test-data:data-factory` | Creates dummy test data | `test-data/*.json` |
 | 4a | `/automation-api:api-test-generator` | Writes API tests (TypeScript) | `automation/api/`, `automation/tests/api/` |

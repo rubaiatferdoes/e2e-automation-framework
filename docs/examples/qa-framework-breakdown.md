@@ -30,7 +30,7 @@ Run them in order from the framework folder; each one stops for approval.
 | Step | Command | What it does | Output (location) |
 | --- | --- | --- | --- |
 | 0 | `/setup:env-readiness` | Checks the test environment is ready | READY / NOT READY table (in chat) |
-| 1 | `/requirements:analyze-requirements` | Finds features, rules, gaps and questions | `docs/analysis/requirement-analysis.md` |
+| 1 | `/requirements:analyze-requirements` | Finds features, rules, gaps and questions — most important first | `docs/analysis/requirement-analysis.md` |
 | 2 | `/test-design:test-planner` | Decides the scope, writes test cases | `docs/test-plan.md`, `docs/test-cases/<module>/TC-*.md` (one file per case) |
 | 3 | `/test-data:data-factory` | Creates dummy data | `test-data/` |
 | 4 | `/automation-api:api-test-generator` then `api-test-reviewer` | Writes and stabilizes API tests | `automation/api/`, `automation/tests/api/` |
