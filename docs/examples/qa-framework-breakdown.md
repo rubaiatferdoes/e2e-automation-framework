@@ -77,6 +77,14 @@ A change from product updates only what it affects; nothing is rebuilt.
 
 IDs never change, so history stays traceable.
 
+## Database checks
+
+QA never writes to the database: tests create data through the API like a real customer, then read the database to confirm the app stored it correctly.
+
+1. Backend adds the schema (no data) to `docs/input/db/`; DevOps adds a read-only login to `.env`.
+2. Run `/qa:database:db-validator`. It first compares the schema with the requirements (e.g. PRD says 40 characters, column allows 30), then adds DB checks to the existing tests.
+3. Run `npm run test:db`. Until the database is ready, only the DB steps are skipped; everything else still runs.
+
 ## Status and open questions
 
 All 13 commands passed a live check (17 Oct 2026); real test runs start when the mirror environment is ready. Endpoint editing is out of scope for now, and database checks wait for the DB choice.
