@@ -1,4 +1,4 @@
-# docs/input/db — database schema goes here
+# docs/requirements/db — database schema goes here
 
 When the database is decided, add these, then run `/database:db-validator`.
 

@@ -1,4 +1,4 @@
-# docs/input — put requirement material here
+# docs/requirements — put requirement material here
 
 Everything in this folder is read by `/requirements:analyze-requirements`.
 
