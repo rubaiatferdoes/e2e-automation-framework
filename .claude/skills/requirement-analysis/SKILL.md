@@ -1,0 +1,97 @@
+---
+name: requirement-analysis
+description: Analyze PRD/FRD documents, mockup images, and client notes for the API endpoint builder product. Produces features (F-), business rules (BR-), E2E flow coverage, missed scenarios, a market-standard comparison, and prioritized questions (Q-). Use when asked to analyze requirements, find test scope, coverage areas, gaps, or missed scenarios.
+---
+
+# Requirement Analysis
+
+**Goal:** turn raw requirements into a clear, testable list — and find
+what is missing BEFORE anyone writes test cases.
+
+**Input:** everything under `docs/input/` (or the path given): PRD, FRD,
+user stories, mockup images, meeting notes, emails.
+**Output:** `docs/analysis/requirement-analysis.md`, using
+[templates/output-template.md](templates/output-template.md).
+
+## Modules
+
+Every feature belongs to ONE module. Use the PRD's own module names; if
+it has none, use these defaults (slug in brackets):
+
+| Module | Covers |
+|---|---|
+| Endpoint management `[endpoints]` | Create, list, view, delete endpoints in the UI |
+| Swagger docs `[docs]` | Auto-generated OpenAPI spec and docs page |
+| API keys `[keys]` | Generate, show, mask, revoke, expire, rotate keys |
+| Endpoint runtime `[runtime]` | Calling a generated endpoint with a key |
+| Access & tenants `[access]` | Login, roles, tenant isolation |
+
+## Analyzing one module or one workflow
+
+If the arguments name a module (`module:keys` or `"API keys"`), a flow
+step (`flow:3`), or a folder (`docs/input/keys/`):
+
+1. Read all input as usual, but analyze ONLY material about that module
+   or flow step. Print what you included and what you skipped.
+2. Write it into `docs/analysis/requirement-analysis.md` under that
+   module's section (create the file from the template if missing).
+   IDs continue from the highest number already in the file — never
+   restart at 001. Leave every other module's section untouched.
+3. Mark the module's row in the Module index `Analyzed — awaiting approval`.
+4. Module already approved? Don't redo it — tell the user to use
+   `/qa:change:impact-analysis` for updates.
+5. Still check the market checklist and E2E flow coverage, but only for
+   the items belonging to this module or flow step.
+
+## Steps (do them in order)
+
+1. **Inventory** — list every file you read, with version/date if shown.
+   Open every mockup image and note each screen, field, button, and
+   error message.
+
+2. **User roles** — for each role (customer admin, platform admin, the
+   app/person calling the generated API): what they can do, what they
+   must NOT do, how they log in or authenticate.
+
+3. **Features and rules** — group features by module. Write each one as
+   a testable sentence:
+   `F-001: The system shall <do something> when <condition>.`
+   Under each feature, list its business rules (`BR-001`): validations,
+   limits, permissions, states (e.g. key: active → revoked).
+
+4. **Map to the E2E flow** — for each of the 6 steps in `CLAUDE.md`
+   (create → docs → key → call → revoke/delete → key dead), list the
+   F-/BR- IDs that cover it. A step with no requirement is a gap.
+
+5. **Market check** — compare against
+   [references/market-checklist.md](references/market-checklist.md).
+   Every checklist item the requirements don't mention becomes a gap.
+
+6. **Missed scenarios** — tag each one:
+   - `[MISSING]` — not mentioned at all
+   - `[UNCLEAR]` — mentioned but can't be tested as written
+   - `[CONFLICT]` — two sources disagree (quote both)
+
+7. **Questions** — one `Q-001` per gap, sorted by priority:
+   **Blocker** (can't write tests without it) → **High** → **Low**.
+   Each question names the F-/BR- or flow step it unblocks.
+
+## When NOT to re-run this skill
+
+Once the analysis is approved, updates from product (answers, change
+requests, new document versions) go through the `change-impact` skill
+(`/qa:change:impact-analysis`) — it updates only what changed and keeps
+every ID. Re-run this skill from scratch only for a brand-new baseline
+(e.g. a completely rewritten PRD), and say so in the summary.
+
+## Rules
+
+- Never invent a requirement. If it isn't written down, it's a gap or a
+  question.
+- Never guess a field limit (length, format, count) — ask.
+- Respect the scope table in `CLAUDE.md` (e.g. endpoint customization is
+  out of scope) — list out-of-scope items, don't analyze them.
+- In chat, show only a short summary: counts, top 5 gaps, blocker
+  questions. Full detail goes in the file.
+- Finish with: "Ready for review. After approval, run
+  `/qa:test-design:test-planner`."

@@ -1,0 +1,10 @@
+---
+description: Step 0 — Check the mirror environment is ready (env vars, not production, URLs, tenants, tools, leftover qa- data)
+argument-hint: [optional: ui | api | all]
+---
+
+Use the env-readiness-check skill for: $ARGUMENTS
+
+If no argument was given, check everything (all suites).
+Show the READY / NOT READY table. Ask me before deleting any leftover
+qa- data.

@@ -1,0 +1,37 @@
+# BUG-<nnn>: [Area] <what goes wrong> when <condition>
+
+| Field | Value |
+|---|---|
+| Severity | Sev-1 / Sev-2 / Sev-3 / Sev-4 |
+| Priority | P0 / P1 / P2 / P3 (proposed — lead confirms) |
+| Status | Open |
+| Found by | <name / agent> on YYYY-MM-DD |
+| Environment | Mirror — <URL name, not the full URL> · build <version> |
+| Browser / client | Chromium <ver> / Playwright API test / curl |
+| Test case | TC-<nnn> |
+| Requirement | F-<nnn> / BR-<nnn> |
+| Reproducible | Always / Intermittent (<x> of <y> runs) |
+
+## Steps to reproduce
+1. Log in as `qa-tenant-a`
+2. ...
+
+## Expected result
+<from TC-/BR- — quote it>
+
+## Actual result
+<exact message / status code / response>
+
+## Evidence
+- Screenshot: `reports/artifacts/...`
+- Trace: `reports/artifacts/...`
+- Request / response (keys masked):
+```http
+GET /qa-tc014-1712345678 HTTP/1.1
+x-api-key: sk_...a1b2
+
+HTTP/1.1 200 OK
+```
+
+## Notes (optional)
+Suspected cause, related bugs, workaround.
