@@ -48,7 +48,7 @@ An illustrative run on one module. Input: PRD section 4 ("up to 5 keys per endpo
 
 | Step | You type | You get |
 | --- | --- | --- |
-| 1 | `analyze-requirements module:keys` | 4 features, 5 rules, 5 gaps. Blocker question: how fast must a revoked key stop working? Product answers "60 seconds", which becomes a new rule |
+| 1 | `analyze-requirements module:keys` | 4 features, 5 rules, 5 gaps. First question: how fast must a revoked key stop working? Product answers "60 seconds", which becomes a new rule |
 | 2 | `test-planner module:keys` | 8 test cases, e.g. TC-014 "Revoked key rejected within 60 s" (P0) |
 | 3 | `data-factory module:keys` | Boundary data for key names: 2, 3, 40 and 41 characters, plus fake keys |
 | 4 | `api-test-generator module:keys` | 7 API tests; the UI-only case is left for the UI generator |

@@ -45,7 +45,7 @@ continues numbering after the endpoints module.
 Analyzed: module keys (PRD §4, mockup-05, client-notes-2026-10-15)
 Skipped:  PRD §2–3 (endpoints — already approved), §5 (docs)
 
-Features: 4 (F-004..F-007)   Rules: 5 (BR-007..BR-011)   Gaps: 5   Blocker questions: 1
+Features: 4 (F-004..F-007)   Rules: 5 (BR-007..BR-011)   Gaps: 5   Questions: 4
 
 Top gaps:
  [MISSING]  How fast must a revoked key stop working? (flow step 5)
@@ -54,7 +54,7 @@ Top gaps:
  [MISSING]  Response when tenant B uses its key on tenant A's endpoint (403 or 404?)
  [MISSING]  Is the key stored hashed?
 
-Blocker: Q-005 — revocation delay (can't write the "key is dead" test without it)
+Needed first: Q-005 — revocation delay (can't write the "key is dead" test without it)
 ```
 
 **Added to `docs/analysis/requirement-analysis.md`**
@@ -72,12 +72,12 @@ Blocker: Q-005 — revocation delay (can't write the "key is dead" test without 
 | BR-011 | Key sent in x-api-key header       | PRD §4.5 |
 ```
 
-| ID | Priority | Question | Unblocks |
-|---|---|---|---|
-| Q-005 | Blocker | How many seconds until a revoked key stops working? | F-006, flow 5 |
-| Q-006 | High | Is "Copy key" on the list a mistake? PRD says shown once | BR-009 |
-| Q-007 | High | Cross-tenant key use: 403 or 404? | F-007, E2E-04 |
-| Q-008 | High | Do keys expire? Client said "maybe 90 days" | F-006 |
+| ID | Question | Unblocks |
+|---|---|---|
+| Q-005 | How many seconds until a revoked key stops working? | F-006, flow 5 |
+| Q-006 | Is "Copy key" on the list a mistake? PRD says shown once | BR-009 |
+| Q-007 | Cross-tenant key use: 403 or 404? | F-007, E2E-04 |
+| Q-008 | Do keys expire? Client said "maybe 90 days" | F-006 |
 
 **You check:** every rule cites PRD §4 · the conflict is a question, not
 a guess · module index shows "keys: Analyzed — awaiting approval".

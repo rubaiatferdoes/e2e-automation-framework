@@ -7,7 +7,7 @@
 | YYYY-MM-DD | <name / agent> | <count> documents, <count> mockups |
 
 ## 1. Summary
-- Features found: <n> · Business rules: <n> · Gaps: <n> · Blocker questions: <n>
+- Features found: <n> · Business rules: <n> · Gaps: <n> · Questions: <n>
 - Top risks (max 5, one line each)
 
 ## 2. Sources analyzed
@@ -57,9 +57,11 @@
 - ASSUMPTION — verify: ...
 
 ## 10. Questions for product/customer
-| ID | Priority | Question | Unblocks |
-|---|---|---|---|
-| Q-001 | Blocker | ... | F-003, flow step 6 |
+Most important first — the ones that stop test cases being written come first.
+
+| ID | Question | Unblocks |
+|---|---|---|
+| Q-001 | ... | F-003, flow step 6 |
 
 ## Change log
 | CR | Date | Summary | IDs touched |

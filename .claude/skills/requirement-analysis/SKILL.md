@@ -72,9 +72,10 @@ step (`flow:3`), or a folder (`docs/requirements/keys/`):
    - `[UNCLEAR]` — mentioned but can't be tested as written
    - `[CONFLICT]` — two sources disagree (quote both)
 
-7. **Questions** — one `Q-001` per gap, sorted by priority:
-   **Blocker** (can't write tests without it) → **High** → **Low**.
-   Each question names the F-/BR- or flow step it unblocks.
+7. **Questions** — one `Q-001` per gap, most important first: the ones
+   that stop test cases being written, then the rest. Don't label them
+   with a priority — the order says it. Each question names the F-/BR-
+   or flow step it unblocks.
 
 ## When NOT to re-run this skill
 
@@ -91,7 +92,8 @@ every ID. Re-run this skill from scratch only for a brand-new baseline
 - Never guess a field limit (length, format, count) — ask.
 - Respect the scope table in `CLAUDE.md` (e.g. endpoint customization is
   out of scope) — list out-of-scope items, don't analyze them.
-- In chat, show only a short summary: counts, top 5 gaps, blocker
-  questions. Full detail goes in the file.
+- In chat, show only a short summary: counts, top 5 gaps, and the
+  questions needed before test cases can be written. Full detail goes
+  in the file.
 - Finish with: "Ready for review. After approval, run
   `/test-design:test-planner`."
