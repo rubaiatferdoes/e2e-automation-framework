@@ -28,8 +28,8 @@ fill in the mirror values." Stop there.
 
 | # | Check | How | Pass when |
 |---|---|---|---|
-| 1 | Required env vars set | Compare against `.env.example` | Every variable has a value |
-| 2 | NOT production | Compare `MIRROR_BASE_URL`, `MIRROR_API_URL`, `MIRROR_SWAGGER_URL` with `PROD_DOMAIN` | `PROD_DOMAIN` is set AND no URL contains it. Empty `PROD_DOMAIN` = FAIL (we can't prove it's safe). **If a URL contains it: STOP everything.** |
+| 1 | Settings filled in | Compare against `.env.example` | Every variable in its REQUIRED section has a value. Empty OPTIONAL ones are listed as `⚠️ SKIPPED — waiting for decision`, never FAIL |
+| 2 | NOT production | Take the **hostname** of `MIRROR_BASE_URL`, `MIRROR_API_URL`, `MIRROR_SWAGGER_URL` and compare it, exactly and case-insensitively, with each entry in `PROD_HOSTS` | `PROD_HOSTS` is set AND no mirror hostname equals a prod host (`mirror.company.com` vs `app.company.com` is fine — never a substring match). Empty `PROD_HOSTS` = FAIL. **Exact match: STOP everything.** |
 | 3 | Mirror UI reachable | `curl -s -o /dev/null -w "%{http_code}" "$MIRROR_BASE_URL"` | 200/3xx |
 | 4 | Platform API reachable | same, on `$MIRROR_API_URL` health or docs route | 200 |
 | 5 | Swagger reachable | `curl` on `$MIRROR_SWAGGER_URL` | 200 and body is JSON/YAML |
@@ -43,7 +43,7 @@ fill in the mirror values." Stop there.
 ENVIRONMENT READINESS — <date/time>
 | # | Check | Result | Note |
 |---|---|---|---|
-| 1 | Env vars | ✅ PASS | 9/9 set |
+| 1 | Settings | ✅ PASS | 9/9 required set · 6 optional empty (SKIPPED) |
 | 2 | Not production | ✅ PASS | |
 ...
 VERDICT: READY  (or: NOT READY — fix #3, #6 first)

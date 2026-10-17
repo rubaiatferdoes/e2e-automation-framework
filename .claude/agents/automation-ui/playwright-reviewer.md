@@ -46,7 +46,8 @@ plus the pages and locators they use.
 ## 3. Stability gate
 
 `npx playwright test --project=ui --project=e2e --repeat-each=3` fully
-green (`--repeat-each=5` if anything flaked). No single test over 30s.
+green (`--repeat-each=5` if anything flaked). No single test over 30s, except `@slow` key-dead tests
+(limit: revocation delay + 60 s, set by their own `test.setTimeout`).
 
 ## Report
 

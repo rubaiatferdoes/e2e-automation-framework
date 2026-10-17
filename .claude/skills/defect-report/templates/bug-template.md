@@ -27,7 +27,7 @@
 - Trace: `reports/artifacts/...`
 - Request / response (keys masked):
 ```http
-GET /qa-tc014-1712345678 HTTP/1.1
+GET /qa-tc014-lz3k9a-w2-x7f1 HTTP/1.1
 x-api-key: sk_...a1b2
 
 HTTP/1.1 200 OK

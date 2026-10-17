@@ -15,9 +15,12 @@ automation/
 ├── playwright.config.ts        projects: api, ui, e2e
 ├── tsconfig.json               "strict": true
 ├── package.json                scripts below
-├── .eslintrc.cjs
+├── eslint.config.mjs           ESLint flat config (typescript-eslint recommended)
 ├── config/env.ts               typed ENV object — loads ../.env with dotenv, then reads process.env;
-│                               throws a clear error naming any missing variable
+│                               REQUIRED values missing → clear error naming them;
+│                               OPTIONAL ones (revocation delay, cross-tenant status,
+│                               DB_*) may be empty; also refuses to start if a
+│                               mirror hostname equals one in PROD_HOSTS
 ├── types/                      Endpoint, ApiKey, ErrorResponse ...
 ├── ui/                         ── PAGE OBJECT MODEL ──
 │   ├── locators/<feature>.locators.ts   selector strings ONLY
@@ -33,7 +36,7 @@ automation/
 │   ├── queries/<area>.queries.ts        named, parameterized SELECTs only
 │   └── DbVerifier.ts                    business-level checks (endpointRow, orphanKeys…)
 ├── fixtures/baseTest.ts        exposes pages + clients + db; creates & cleans qa- data
-├── utils/                      poll helpers, unique names (qa-<tc>-<timestamp>)
+├── utils/                      poll helpers, unique names (qa-<tc>-<time>-w<worker>-<random>)
 │   └── testData.ts             typed loader for ../test-data/*.json
 │                               (dataFor('TC-005'), getData('DAT-004'))
 └── tests/
@@ -43,7 +46,7 @@ automation/
     └── db/<area>.db.spec.ts         standalone integrity checks (@db)
 ```
 
-`package.json` scripts: `test`, `test:api`, `test:ui`, `test:e2e`, `test:db` (`--grep @db`),
+`package.json` scripts: `test`, `test:api`, `test:ui`, `test:e2e`, `test:db` (`--project=db`),
 `test:headed`, `typecheck` (`tsc --noEmit`), `lint`, `report`.
 
 ### First-time setup (whoever creates `automation/` runs this once)
@@ -52,13 +55,20 @@ automation/
 cd automation
 npm init -y
 npm i -D @playwright/test typescript @types/node dotenv ajv ajv-formats @faker-js/faker \
-  eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
+  eslint typescript-eslint
 npx playwright install chromium
 ```
 
 - `config/env.ts` starts with `dotenv.config({ path: path.resolve(__dirname, '../../.env') })`
   — the single `.env` at the project root. Never a second `.env` inside `automation/`.
 - Commit `package-lock.json`; teammates then run `npm ci`.
+- ESLint uses the **flat config** file `eslint.config.mjs` (current ESLint
+  ignores `.eslintrc.*`):
+  ```js
+  import tseslint from 'typescript-eslint';
+  export default tseslint.config(...tseslint.configs.recommended,
+    { ignores: ['reports/**', 'test-results/**'] });
+  ```
 
 ## 2. The POM rule — three layers, each with one job
 
@@ -170,7 +180,9 @@ test('[TC-001] create endpoint stores it for the right tenant',
   typed into a test. Data-driven cases loop over `dataFor('TC-005')`,
   one `test()` per record, title `[TC-005] <DAT id> <short value>`.
   The loader fills the data factory's patterns at runtime: `{qa-name}`
-  → `qa-<tc>-<timestamp>`, `{repeat:k:41}` → 41 × "k", and
+  → `qa-tc014-lz3k9a-w2-x7f1` (test case, time in base-36 ms, `test.info().workerIndex`,
+  4 random characters — unique even across parallel workers and
+  `--repeat-each` copies), `{repeat:k:41}` → 41 × "k", and
   `{faker:<method>}` → `@faker-js/faker` seeded with the TC number, so
   the value is realistic but identical on every run.
 - **Setup through API clients, not the UI.** Only the step under test
@@ -179,7 +191,12 @@ test('[TC-001] create endpoint stores it for the right tenant',
   `waitForResponse`, `expect.poll()`. `waitForTimeout` and `setTimeout`
   are forbidden.
 - **Key-dead checks:** `expect.poll(() => caller.status(key), { timeout: ENV.keyRevocationMaxMs }).toBe(401)`.
+  Such a test starts with `test.setTimeout(ENV.keyRevocationMaxMs + 60_000)`,
+  is tagged `@slow`, and is never `@smoke`. It first proves the key works (200).
 - **Never expect 5xx.** Cross-tenant status comes from `ENV.crossTenantStatus`.
+- **Tests that need an undecided value skip themselves**, e.g.
+  `test.skip(!ENV.keyRevocationMaxMs, 'Waiting for product: revocation delay (Q-…)')`
+  — the rest of the suite still runs.
 - **Schema check on every API response** via `schemaValidator`.
 - One scenario per test; no `if/else` in tests; keep tests ≤ 15 lines.
 - No hardcoded URLs or secrets; no commented-out code, `console.log`,
@@ -192,9 +209,10 @@ Verify in the real DOM first. Priority: `data-testid` → id → role/label
 
 ## 6. Config (`playwright.config.ts`)
 
-- Projects: `api` (`tests/api`, no browser), `ui` and `e2e` (Desktop Chrome;
-  firefox/webkit present but commented out).
-- timeout 60s, expect 10s, `fullyParallel: true`, `retries: process.env.CI ? 2 : 0`.
+- Projects: `api` (`tests/api`, no browser), `db` (`tests/db`, no browser),
+  `ui` and `e2e` (Desktop Chrome; firefox/webkit present but commented out).
+  Each script runs one project: `test:api` → `--project=api`, and so on.
+- timeout 60s (key-dead tests raise their own — see section 4), expect 10s, `fullyParallel: true`, `retries: process.env.CI ? 2 : 0`.
 - Reporter: list + HTML to `reports/html` (`open: 'never'`).
 - Screenshot + trace on failure → `reports/artifacts`.
 - `baseURL` from ENV; `ignoreHTTPSErrors: true` for the mirror.
@@ -210,6 +228,8 @@ Verify in the real DOM first. Priority: `data-testid` → id → role/label
 | Several test cases | `npx playwright test --grep "TC-014\|TC-020"` |
 | A feature / a priority | `npx playwright test --grep @F-003` / `--grep @P0` |
 | A module / a flow step | `npx playwright test --grep @mod-keys` / `--grep @flow-3` |
+| DB integrity checks only (`tests/db/`) | `npm run test:db` |
+| Everything that touches the DB (integrity + API/E2E tests with DB steps) | `npx playwright test --grep @db` |
 | Both (AND) | `npx playwright test --grep "(?=.*@F-003)(?=.*@P0)"` |
 | Stability gate | `npx playwright test --repeat-each=3` |
 | Open report | `npm run report` |

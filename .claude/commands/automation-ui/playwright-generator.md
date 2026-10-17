@@ -1,5 +1,5 @@
 ---
-description: Step 4a — Playwright UI Generator agent — UI + E2E tests in TypeScript (Page Object Model) from approved test cases
+description: Step 4c — Playwright UI Generator agent — UI + E2E tests in TypeScript (Page Object Model) from approved test cases
 argument-hint: [all | TC-014 TC-020 | TC-010..TC-015 | module:keys | flow:3 | F-003 | P0 | E2E | path to test cases]
 context: fork
 agent: playwright-generator

@@ -60,7 +60,7 @@ step (`flow:3`), or a folder (`docs/input/keys/`):
    limits, permissions, states (e.g. key: active → revoked).
 
 4. **Map to the E2E flow** — for each of the 6 steps in `CLAUDE.md`
-   (create → docs → key → call → revoke/delete → key dead), list the
+   (create → docs → key → call → revoke key → delete endpoint), list the
    F-/BR- IDs that cover it. A step with no requirement is a gap.
 
 5. **Market check** — compare against

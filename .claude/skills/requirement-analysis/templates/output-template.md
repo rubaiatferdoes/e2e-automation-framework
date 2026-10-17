@@ -23,7 +23,7 @@
 ### Module index
 | Module | Slug | Features | Flow steps | Status |
 |---|---|---|---|---|
-| API keys | keys | F-004..F-007 | 3, 5, 6 | Analyzed — awaiting approval / Approved YYYY-MM-DD |
+| API keys | keys | F-004..F-007 | 3, 5 | Analyzed — awaiting approval / Approved YYYY-MM-DD |
 
 ### Module: <name> `[slug]`
 #### F-001: The system shall ...
@@ -38,8 +38,8 @@
 | 2. Swagger docs generated | | ⚠️ no requirement |
 | 3. Generate API key | | |
 | 4. Call endpoint with key | | |
-| 5. Revoke key / delete endpoint | | |
-| 6. Key is dead | | |
+| 5. Revoke key → key is dead | | |
+| 6. Delete endpoint → endpoint is gone | | |
 
 ## 6. Market-standard comparison
 | Checklist item | In requirements? | Note |

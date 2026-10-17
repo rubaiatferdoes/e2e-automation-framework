@@ -48,7 +48,7 @@ Skipped:  PRD §2–3 (endpoints — already approved), §5 (docs)
 Features: 4 (F-004..F-007)   Rules: 5 (BR-007..BR-011)   Gaps: 5   Blocker questions: 1
 
 Top gaps:
- [MISSING]  How fast must a revoked key stop working? (flow step 6)
+ [MISSING]  How fast must a revoked key stop working? (flow step 5)
  [CONFLICT] PRD 4.3 "shown once" vs mockup-05 "Copy key" button on every row
  [UNCLEAR]  Key expiry "maybe 90 days" — client note only, not in PRD
  [MISSING]  Response when tenant B uses its key on tenant A's endpoint (403 or 404?)
@@ -74,7 +74,7 @@ Blocker: Q-005 — revocation delay (can't write the "key is dead" test without 
 
 | ID | Priority | Question | Unblocks |
 |---|---|---|---|
-| Q-005 | Blocker | How many seconds until a revoked key stops working? | F-006, flow 6 |
+| Q-005 | Blocker | How many seconds until a revoked key stops working? | F-006, flow 5 |
 | Q-006 | High | Is "Copy key" on the list a mistake? PRD says shown once | BR-009 |
 | Q-007 | High | Cross-tenant key use: 403 or 404? | F-007, E2E-04 |
 | Q-008 | High | Do keys expire? Client said "maybe 90 days" | F-006 |
@@ -95,7 +95,7 @@ answers Q-005 ("within 60 seconds") → add it to `docs/input/answers.md`
 /test-design:test-planner module:keys
 ```
 
-Resolves: `module:keys → F-004..F-007, BR-007..BR-012 · flow steps 3, 5, 6 · E2E-02, E2E-03, E2E-04, E2E-07`
+Resolves: `module:keys → F-004..F-007, BR-007..BR-012 · flow steps 3, 4, 5 · E2E-02, E2E-03, E2E-04, E2E-07`
 
 **Written to `docs/test-cases/keys/`** — one file per case, plus the
 module `README.md` index (table below) and the overall
@@ -105,7 +105,7 @@ module `README.md` index (table below) and the overall
 |---|---|---|---|---|---|---|
 | TC-012 | Generate key with valid name shows full key once | F-004, BR-009 | keys / 3 | P0 | Positive | UI+API |
 | TC-013 | Key name length limits (data-driven) | BR-008 | keys / 3 | P2 | Boundary | API |
-| TC-014 | Revoked key rejected within 60 s | F-006, BR-012 | keys / 5-6 / E2E-03 | P0 | E2E | API |
+| TC-014 | Revoked key rejected within 60 s | F-006, BR-012 | keys / 5 / E2E-03 | P0 | E2E | API |
 | TC-015 | 6th key on one endpoint is rejected | BR-007 | keys / 3 | P2 | Boundary | API |
 | TC-016 | Key is masked after page reload | BR-009 | keys / 3 | P1 | Security | UI |
 | TC-017 | Tenant B's key can't call tenant A's endpoint | F-007 | keys / 4 / E2E-04 | P1 | Security | API |
@@ -119,7 +119,7 @@ One of those files, `docs/test-cases/keys/TC-014-revoked-key-rejected.md`:
 id: TC-014
 title: Revoked key rejected within 60 s
 module: keys
-flow: [5, 6]
+flow: [5]
 e2e: E2E-03
 requirements: [F-006, BR-012]
 priority: P0
@@ -145,7 +145,7 @@ status: draft
 - Key expiry is NOT tested — it's an open question (Q-008), not a requirement.
 
 **You check:** 8 cases, not 30 · every rule covered · P0 for flow steps
-3, 5, 6 · boundaries merged into one data-driven case (TC-013).
+3, 4, 5 · boundaries merged into one data-driven case (TC-013).
 
 ---
 
@@ -202,18 +202,33 @@ async revokeApiKey(endpointId: string, keyId: string): Promise<ApiResponse<void>
 ```ts
 // automation/tests/api/keys.api.spec.ts
 test('[TC-014] revoked key rejected within 60 s',
-  { tag: ['@P0', '@F-006', '@mod-keys', '@flow-5', '@flow-6', '@E2E-03', '@smoke'] },
+  { tag: ['@P0', '@F-006', '@mod-keys', '@flow-5', '@E2E-03', '@slow'] },
   async ({ platform, endpointCaller, qaEndpoint }) => {
+    test.skip(!ENV.keyRevocationMaxMs, 'Waiting for product: revocation delay (Q-005)');
+    test.setTimeout(ENV.keyRevocationMaxMs + 60_000);
     const key = await platform.createApiKeyFor(qaEndpoint);
-    await platform.revokeApiKey(qaEndpoint.id, key.id);
 
+    // Step 1 — prove the key works first, so a broken key can't pass this test
+    const before = await endpointCaller.call(qaEndpoint, key.value);
+    expect(before.status).toBe(200);
+    expectMatchesSchema(before.body, 'endpoint-response');
+
+    // Step 2 — revoke, and the platform shows it as revoked
+    await platform.revokeApiKey(qaEndpoint.id, key.id);
+    expect((await platform.getApiKey(qaEndpoint.id, key.id)).body.status).toBe('revoked');
+
+    // Step 3 — the same key stops working within the agreed delay
     await expect.poll(() => endpointCaller.status(qaEndpoint, key.value),
       { timeout: ENV.keyRevocationMaxMs }).toBe(401);
   });
 ```
 
+- It proves the key **worked** (200 + schema check) before proving it
+  **stopped** working — otherwise a key that never worked would pass.
+- It is slow by design (up to the 60 s delay), so it sets its own timeout,
+  is tagged `@slow`, and is not part of `@smoke`.
 - No selectors or raw HTTP calls in the test — those live in the client.
-- `qaEndpoint` is a fixture: it creates `qa-tc014-1729160000` before the
+- `qaEndpoint` is a fixture: it creates `qa-tc014-lz3k9a-w2-x7f1` before the
   test and deletes it after, even if the test fails.
 - It polls up to the agreed 60 seconds — no fixed sleep.
 

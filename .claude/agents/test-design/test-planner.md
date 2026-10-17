@@ -38,8 +38,8 @@ those come from requirements only.
 
 1. Safety first — load `.env` (`set -a; source .env; set +a;` at the
    start of every Bash command). A URL given in the arguments overrides
-   the matching `.env` value for this run only. If `PROD_DOMAIN` is empty
-   or any URL contains it → stop and report. Never touch production.
+   the matching `.env` value for this run only. If `PROD_HOSTS` is empty
+   or any URL's hostname exactly matches one of them → stop and report. Never touch production.
 2. Look, don't touch — read-only GET requests and screenshots only. Do
    not log in with real accounts, create, change, or delete anything.
 3. What to check:

@@ -7,7 +7,7 @@ Based on `docs/analysis/requirement-analysis.md` · Environment: mirror only · 
 ## Test cases
 | TC ID | Title | Priority | Type | Layer | Flow | Status |
 |---|---|---|---|---|---|---|
-| [TC-014](TC-014-revoked-key-rejected.md) | Revoked key rejected within 60 s | P0 | E2E | API | 5, 6 | draft |
+| [TC-014](TC-014-revoked-key-rejected.md) | Revoked key rejected within 60 s | P0 | E2E | API | 5 | draft |
 
 ## Coverage for this module
 | Req ID | Test cases | Covered? |

@@ -50,14 +50,17 @@ missing ones (e.g. no `deleted_at` → is delete hard or soft? → Q-).
 | **Inside existing API/E2E tests** (after an action, check the DB) | the existing spec — add a DB step | After `[TC-001]` creates `qa-tc001-…` via API → row exists, owned by qa-tenant-a |
 | **Standalone integrity checks** | `tests/db/<area>.db.spec.ts` | No API key rows without an endpoint; no plain-text keys; no leftover `qa-` rows older than 24 h |
 
-Every check is tagged `@db` plus the usual TC/module/flow tags. Checks
+`@db` means "this test reads the database" — both kinds carry it, so
+`--grep @db` runs everything DB-related. `npm run test:db` runs only the
+standalone `tests/db/` project. Every check also carries the usual
+TC/module/flow tags. Checks
 from the `e2e-endpoint-flow` DB column and `api-key-security` K3 (hashed
 storage) are mandatory.
 
 ## 5. Run
 
-`npm run typecheck` then `npm run test:db`, plus the API/E2E tests you
-added DB steps to. Classify failures as usual; a DB mismatch with the
+`npm run typecheck`, then `npx playwright test --grep @db` (the
+standalone checks plus the API/E2E tests you added DB steps to). Classify failures as usual; a DB mismatch with the
 requirement is an application bug → `defect-report` format.
 
 ## Rules

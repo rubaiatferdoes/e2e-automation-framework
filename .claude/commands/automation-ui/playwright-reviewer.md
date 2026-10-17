@@ -1,5 +1,5 @@
 ---
-description: Step 4b — Playwright UI Reviewer agent — review, run, and stabilize UI + E2E tests (3-run stability gate)
+description: Step 4d — Playwright UI Reviewer agent — review, run, and stabilize UI + E2E tests (3-run stability gate)
 argument-hint: [all | TC IDs | module:keys | flow:3 | F-003 | P0 | E2E | path to tests]
 context: fork
 agent: playwright-reviewer

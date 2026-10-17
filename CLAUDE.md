@@ -14,7 +14,7 @@ The E2E flow we own:
 
 ```
 1. Create endpoint (UI) → 2. Swagger docs auto-generated → 3. Generate API key
-→ 4. Call endpoint with key → 5. Revoke key / delete endpoint → 6. Key is dead
+→ 4. Call endpoint with key → 5. Revoke key → key is dead → 6. Delete endpoint → endpoint is gone
 ```
 
 ## 2. Current scope decisions (update when they change)
@@ -32,7 +32,7 @@ The E2E flow we own:
 - Test ONLY on the mirror environment. Never production.
 - Use ONLY dummy data. Never real customer data.
 - Every test creates its own data with the `qa-` prefix
-  (e.g. `qa-tc014-1712345678`) and deletes it afterwards.
+  (e.g. `qa-tc014-lz3k9a-w2-x7f1` — test case, time, worker, random) and deletes it afterwards.
 - Database access is READ-ONLY. Only the application writes.
 - Secrets and URLs come from environment variables (see `.env.example`).
   Never write a key, password, or URL into code or docs.
