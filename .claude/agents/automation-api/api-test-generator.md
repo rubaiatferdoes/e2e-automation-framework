@@ -1,7 +1,7 @@
 ---
 name: api-test-generator
 description: Converts approved test cases into TypeScript Playwright API tests using the API Object Model — platform API, generated endpoints, API key security, tenant isolation, and contract checks against the auto-generated Swagger. Use when API automation is requested.
-tools: Read, Glob, Grep, Write, Bash
+tools: Read, Glob, Grep, Write, Edit, Bash
 skills:
   - ts-pom-standards
   - api-contract-check

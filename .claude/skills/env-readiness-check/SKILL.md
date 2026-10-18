@@ -33,7 +33,7 @@ fill in the test environment values." Stop there.
 | 3 | Platform API reachable | same, on `$TEST_ENV_API_URL` health or docs route | 200 |
 | 4 | Swagger reachable | `curl` on `$TEST_ENV_SWAGGER_URL` | 200 and body is JSON/YAML |
 | 5 | Test tenants exist | Log in / call the platform API as `qa-tenant-a` and `qa-tenant-b` (login route from the requirement analysis) | Both succeed. Login route not known yet → `⚠️ SKIPPED` |
-| 6 | Tools installed | `node -v` (18+), `npx playwright --version`, and in `automation/`: `npm ci` done, `npm run typecheck` passes | Versions print; typecheck passes |
+| 6 | Tools installed | `node -v` (18+), `npx playwright --version`. If `automation/` exists: `npm ci` done, `npm run typecheck` passes | Versions print. `automation/` missing (before step 4) → that part is `⚠️ SKIPPED — automation/ not created yet`, not FAIL. `automation/` exists → typecheck must also pass |
 | 7 | Leftover test data | List endpoints/keys starting with `qa-` older than 24h | None — or list them for cleanup |
 
 ## Output
@@ -53,3 +53,6 @@ VERDICT: READY  (or: NOT READY — fix #2, #5 first)
   Delete only via the platform API, only `qa-` items, only on the test environment.
 - If a check can't run because a value is missing, mark it `⚠️ SKIPPED`
   with the reason — don't mark it PASS.
+- Check 6's `npm ci`/`typecheck` part only applies once `automation/`
+  exists (created in step 4). Running this skill at step 0, before any
+  automation code exists, is normal — don't let that alone cause NOT READY.

@@ -9,3 +9,6 @@ automation/playwright-report/
 
 # IDE
 .idea/
+
+# Python
+__pycache__/

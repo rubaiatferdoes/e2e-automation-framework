@@ -42,7 +42,7 @@ which DAT- IDs changed.
 
 | Pattern | Becomes at runtime | Use for |
 |---|---|---|
-| `{qa-name}` | `qa-tc014-lz3k9a-w2-x7f1` (test case · time in ms · worker number · 4 random characters) | Anything that must be unique — safe when the same test runs in parallel or with `--repeat-each` |
+| `{qa-name}` | `qa-tc014-lz3k9a-w2-x7f1` — exact format defined once in `ts-pom-standards` | Anything that must be unique — safe when the same test runs in parallel or with `--repeat-each` |
 | `{repeat:k:41}` | `kkk…k` (exactly 41 characters) | Boundary lengths — no hand-typed long strings |
 | `{faker:lorem.sentence}` | A realistic sentence from Faker, seeded with the TC ID (same value every run) | Realistic filler: descriptions, labels |
 

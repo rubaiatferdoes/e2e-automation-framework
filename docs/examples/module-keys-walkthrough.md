@@ -202,7 +202,7 @@ async revokeApiKey(endpointId: string, keyId: string): Promise<ApiResponse<void>
 ```ts
 // automation/tests/api/keys.api.spec.ts
 test('[TC-014] revoked key rejected within 60 s',
-  { tag: ['@P0', '@F-006', '@mod-keys', '@flow-5', '@E2E-03', '@slow'] },
+  { tag: ['@P0', '@F-006', '@mod-keys', '@flow-5', '@E2E-03', '@e2e', '@slow'] },
   async ({ platform, endpointCaller, qaEndpoint }) => {
     test.skip(!ENV.keyRevocationMaxMs, 'Waiting for product: revocation delay (Q-005)');
     test.setTimeout(ENV.keyRevocationMaxMs + 60_000);

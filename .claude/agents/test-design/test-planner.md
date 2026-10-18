@@ -1,7 +1,7 @@
 ---
 name: test-planner
 description: Decides the test scope and writes the test plan and manual test cases (positive, negative, boundary, security, E2E) from the approved requirement analysis, with a traceability matrix. Can optionally recheck the live test environment (read-only) to align test steps with the real screens and API. Use when test cases, a test plan, or test scope are requested.
-tools: Read, Glob, Grep, Write, Bash
+tools: Read, Glob, Grep, Write, Edit, Bash
 skills:
   - test-case-design
   - e2e-endpoint-flow

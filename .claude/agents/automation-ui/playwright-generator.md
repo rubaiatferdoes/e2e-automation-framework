@@ -1,7 +1,7 @@
 ---
 name: playwright-generator
 description: Converts approved manual test cases into Playwright UI and E2E automation in TypeScript using the Page Object Model (locators → pages → fixtures → tests), with API-based setup/cleanup. Use when UI automation is requested.
-tools: Read, Glob, Grep, Write, Bash
+tools: Read, Glob, Grep, Write, Edit, Bash
 skills:
   - ts-pom-standards
   - e2e-endpoint-flow

@@ -115,7 +115,9 @@ export class PlatformClient extends BaseClient {
 }
 
 // tests/e2e/endpoint-flow.e2e.spec.ts
-test('[TC-001] create endpoint in UI and call it with a new key', async ({ endpointPage, platform, endpointCaller, qaName }) => {
+test('[TC-001] create endpoint in UI and call it with a new key',
+  { tag: ['@P0', '@F-001', '@mod-endpoints', '@flow-1', '@e2e', '@smoke'] },
+  async ({ endpointPage, platform, endpointCaller, qaName }) => {
   await endpointPage.createEndpoint(qaName);
   await expect(endpointPage.successToast).toBeVisible();
 

@@ -34,7 +34,7 @@ before moving to the next step.**
 | 3 | `/test-data:data-factory` | Creates dummy test data | `test-data/*.json` |
 | 4a | `/automation-api:api-test-generator` | Writes API tests (TypeScript) | `automation/api/`, `automation/tests/api/` |
 | 4b | `/automation-api:api-test-reviewer` | Reviews, fixes, and stabilizes API tests | Review report |
-| 4c | `/automation-ui:playwright-generator` | Writes UI + E2E tests (TypeScript, POM) | `automation/ui/`, `automation/tests/ui/`, `tests/e2e/` |
+| 4c | `/automation-ui:playwright-generator` | Writes UI + E2E tests (TypeScript, POM) | `automation/ui/`, `automation/tests/ui/`, `automation/tests/e2e/` |
 | 4d | `/automation-ui:playwright-reviewer` | Reviews, fixes, and stabilizes UI tests | Review report |
 | 5 | `/database:db-validator` | DB checks — **only after the DB type + schema are in `docs/requirements/db/`** | `automation/db/`, schema check |
 | 6 | `/execution:test-executor` | Runs everything, sorts failures, files bugs | `docs/reports/execution-*.md`, `docs/bugs/` |

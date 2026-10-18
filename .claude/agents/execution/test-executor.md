@@ -24,11 +24,15 @@ and report what to fix.
 | E2E | `npm run test:e2e` | `automation/tests/e2e/` missing |
 | DB | `npm run test:db` | `DB_TYPE` empty → `SKIPPED — DB pending` (DB steps inside API/E2E tests are skipped on their own) |
 
-**Selected run:** if the arguments contain a selection (CLAUDE.md
-"Working on a subset"), resolve it to TC IDs, print the list, and run
-only those — by ID (`--grep "TC-014|TC-040"`) or tag (`--grep @F-003`,
-`--grep @P0`) — then the `@smoke` set as a regression guard. Skip the
-full suite. The parity check covers only the selected IDs.
+**Suite-name argument** (`api`, `ui`, `e2e`, `smoke`, `db`): run only
+that row of the table above — no TC resolution needed.
+
+**Selected run** (anything else — TC IDs, `module:`, `flow:`, `F-003`,
+`P0`, `E2E-03`, or a `Type/layer` value): resolve it to TC IDs (CLAUDE.md
+"Working on a subset"), print the list, and run only those — by ID
+(`--grep "TC-014|TC-040"`) or tag (`--grep @F-003`, `--grep @P0`) — then
+the `@smoke` set as a regression guard. Skip the full suite. The parity
+check covers only the selected IDs.
 
 Run `npm run typecheck` first — if it fails, report a script problem
 and stop.

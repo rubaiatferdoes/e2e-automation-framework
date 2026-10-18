@@ -22,7 +22,7 @@ problems = []
 
 
 def frontmatter(path):
-    text = path.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8-sig").replace("\r\n", "\n")
     match = re.match(r"^---\n(.*?)\n---\n(.*)$", text, re.S)
     if not match:
         problems.append(f"{path.relative_to(ROOT)}: missing frontmatter")
@@ -108,10 +108,15 @@ def run_live(slash, wiring):
                   "Reply in one line with the name of the skill you loaded.")
     # Inline commands depend on the model choosing to call the Skill tool; haiku is unreliable at that.
     model = "haiku" if "agent" in wiring else "sonnet"
-    proc = subprocess.run(
-        ["claude", "-p", prompt, "--output-format", "stream-json", "--verbose",
-         "--model", model, "--max-budget-usd", "0.25"],
-        cwd=ROOT, capture_output=True, text=True, encoding="utf-8", timeout=300, shell=sys.platform == "win32")
+    try:
+        proc = subprocess.run(
+            ["claude", "-p", prompt, "--output-format", "stream-json", "--verbose",
+             "--model", model, "--max-budget-usd", "0.25"],
+            cwd=ROOT, capture_output=True, text=True, encoding="utf-8", timeout=300, shell=sys.platform == "win32")
+    except subprocess.TimeoutExpired:
+        return False, "claude CLI timed out after 300s", ""
+    except FileNotFoundError:
+        return False, "claude CLI not found on PATH", ""
     forked, skill_calls, answer = False, [], ""
     for line in proc.stdout.splitlines():
         try:
@@ -128,7 +133,8 @@ def run_live(slash, wiring):
         if event.get("type") == "result":
             answer = str(event.get("result", "")).lower()
     if "agent" in wiring:
-        missing = [s for s in wiring["skills"] if s not in answer]
+        norm_answer = re.sub(r"[^a-z0-9]", "", answer)
+        missing = [s for s in wiring["skills"] if re.sub(r"[^a-z0-9]", "", s) not in norm_answer]
         right_agent = all(word in answer for word in wiring["agent"].split("-"))
         ok = forked and right_agent and not missing
         detail = f"forked={forked}, agent named={right_agent}, missing skills={missing or 'none'}"

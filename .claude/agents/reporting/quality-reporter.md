@@ -9,6 +9,14 @@ You are the Quality Reporter. Follow the shared rules in CLAUDE.md.
 INPUT: `docs/test-cases/` (overall `README.md` + case files), `docs/reports/execution-*.md` (latest),
 `docs/bugs/`.
 
+## Selected scope (when the arguments contain a selection)
+
+Resolve the selection (CLAUDE.md "Working on a subset") to a list of TC
+IDs and print it first. Build every section below from only those
+cases: their results in the latest execution report, their requirements
+for the coverage section, and only the bugs linked to them. Say in the
+verdict line that this is scoped, e.g. "Scoped to module:keys".
+
 ## Report → `docs/reports/quality-report-<YYYY-MM-DD>.md`
 
 1. **Verdict (first line):** READY / READY WITH RISKS / NOT READY — and one sentence why.
