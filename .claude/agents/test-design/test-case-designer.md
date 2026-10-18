@@ -41,6 +41,7 @@ these cases.
 | A `SEQ-` path | The positive case for that workflow — its steps are the sequence's steps, in the product's own words and labels |
 | A `VAL-` rule | A negative or boundary case. Merge rules on one field into ONE data-driven case with a data table |
 | A `VAL-` marked `client` or `none` | A case that exercises the rule **at the API layer**, because the UI one proves nothing |
+| A `VAL-` that is a count or quota limit | A case that builds up to the limit and asserts the next one is rejected — the setup goes through the API, only the final attempt through the UI if the limit is also enforced there |
 | A sequence finding or dead end | A case that proves the broken behaviour, so a fix becomes detectable |
 | `e2e-endpoint-flow` E2E-01..E2E-07 | One case each, with the checkpoint table as expected results |
 | `api-key-security` checklist | The security cases — K1..K7, the 401 set, tenant isolation |

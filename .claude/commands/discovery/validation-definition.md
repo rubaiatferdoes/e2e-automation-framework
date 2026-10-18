@@ -18,6 +18,11 @@ Then check enforcement — send the same bad value straight to the API
 route from the event definition. A rule the browser blocks but the API
 accepts is a finding, not a validation; raise it.
 
+Also probe the count and quota limits: for each collection, create
+through the API one at a time until rejected, stopping at
+DISCOVERY_QUOTA_PROBE_CAP. Reaching the cap with no rejection is
+UNKNOWN plus a question, never "unlimited".
+
 Write `docs/discovery/validations/<module>.validations.md`.
 
 Probing creates data: use `qa-` names and delete everything afterwards.

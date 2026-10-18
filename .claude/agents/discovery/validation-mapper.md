@@ -40,9 +40,18 @@ sequences you were asked to cover.
    - nothing rejects it → `none` — **a finding, raise it**
 5. **Cross-field and form-level rules** — combinations, what enables a
    disabled submit button, state-dependent uniqueness, double submit.
-6. **Clean up** every record the probes created, especially from the
-   uniqueness probe. Report anything left behind.
-7. **Report** — rules per field, the `client`-only and `none` list
+6. **Count and quota limits** — for every collection in the event
+   definitions (an action that creates a child of a parent), create
+   through the platform API one at a time until rejected, stopping at
+   `DISCOVERY_QUOTA_PROBE_CAP` (default 25). Record the limit, the exact
+   message, and whether the UI blocks it too. Reached the cap with no
+   rejection → `UNKNOWN — no limit found below <cap>` and a `Q-`, never
+   "unlimited". Note which tenant you measured on: quotas are often per
+   plan. Announce the probe before starting, and stop and ask if each
+   creation takes more than about 2 seconds.
+7. **Clean up** every record the probes created — the uniqueness and
+   quota probes especially. Report anything left behind, by name.
+8. **Report** — rules per field, the `client`-only and `none` list
    (these are the findings that matter), unresolved limits with their
    `Q-` IDs, and "Ready for review. After approval, run
    `/test-design:test-planner`."

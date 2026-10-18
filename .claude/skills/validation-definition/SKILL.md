@@ -89,7 +89,52 @@ Fields are not independent. Also record:
 - rules that depend on state (a name unique per tenant, not globally)
 - what happens on double submit — two records, or one?
 
-## 5. Write it down
+## 5. Count and quota limits
+
+Some rules are not about what a field accepts but about **how many
+things you are allowed to have** — five keys per endpoint, twenty
+endpoints per tenant, ten rows in a list. No amount of poking a single
+field will find them, and they are exactly the limits a customer hits
+first in production.
+
+**Where to apply it.** Only to collections: an event from the event
+definition that creates a child of a parent (`POST /endpoints/{id}/keys`
+creates a key under an endpoint). One probe per collection, not per
+field.
+
+**How to probe**
+
+1. Announce it before starting: the collection, the parent, and the cap.
+2. Create through the **platform API**, not the UI — faster, and the API
+   is where the limit either holds or doesn't.
+3. Create one at a time, counting, until one is rejected.
+4. Stop at `DISCOVERY_QUOTA_PROBE_CAP` (default 25) no matter what.
+5. Record the count at which it was rejected, and the exact message.
+6. Then check the UI: does the "Generate key" button disable at the
+   limit, or does it let you try and fail? That is the same
+   client/server/both verdict as every other rule.
+
+**What to write**
+
+| Outcome | Record |
+|---|---|
+| Rejected at n+1 | `max n per <parent>`, with the message and the enforcement verdict |
+| Reached the cap with no rejection | `UNKNOWN — no limit found below <cap>` plus a `Q-`. Do **not** write "unlimited" |
+| Rejected with a 5xx | A bug report, not a limit |
+| Rejected but the message gives no number | A finding — a user cannot learn the limit from the product |
+
+Note which tenant you measured on. A quota is often per plan, so "max 5"
+may be true for `qa-tenant-a` and wrong for everyone else — say so
+rather than stating it as a universal rule.
+
+**Cleanup is not optional here.** This probe creates more data than all
+the others combined. Delete every record, report anything left behind by
+name, and never run it against a parent you did not create.
+
+If each creation is slow (over ~2 s) the probe could take minutes — stop
+and ask before continuing, rather than hammering a shared environment.
+
+## 6. Write it down
 
 One row per rule, not per field — a field with three rules gets three
 `VAL-` IDs, because each becomes its own test case or data row.
@@ -105,7 +150,7 @@ the UI generator needs it to know when to assert.
 An unknown limit is written `UNKNOWN — probe inconclusive` with a `Q-`,
 never a guessed number.
 
-## 6. Clean up
+## 7. Clean up
 
 Probing creates records — especially the uniqueness probe. Delete every
 `qa-` record you made, report anything left behind, and never touch a
