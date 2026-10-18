@@ -1,0 +1,14 @@
+# Secrets — never commit
+.env
+
+# Test output
+automation/node_modules/
+automation/reports/
+automation/test-results/
+automation/playwright-report/
+
+# IDE
+.idea/
+
+# Python
+__pycache__/
