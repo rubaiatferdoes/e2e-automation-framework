@@ -49,16 +49,45 @@ Every record the framework creates has a unique name like
 `qa-seq002-lz3k9a-x7f1`. That string exists nowhere else in the
 database, so it works as a tracer:
 
-1. Read `information_schema` once — tables, columns, primary keys,
-   foreign keys. **This is where the schema comes from**, so nobody
-   needs to export one.
-2. Perform the action with the tracer record.
-3. Search the text columns for that literal value → the table and column
-   it landed in.
-4. Follow the foreign keys outward to find the child rows (the key row,
-   the settings row).
-5. Re-read those rows **by primary key** before and after → exactly which
-   columns changed, and from what to what.
+**1. Read the catalog once.** This is where the schema comes from, so
+nobody needs to export one:
+
+```sql
+SELECT table_name, column_name, data_type, character_maximum_length, is_nullable
+FROM information_schema.columns
+WHERE table_schema = :schema;
+```
+
+Plus `table_constraints` and `key_column_usage` for primary and foreign
+keys.
+
+**2. Act** — perform the action through the platform API with the tracer
+record. Never write to the database to set up a check.
+
+**3. Locate** — query the text columns for that literal value, name-like
+columns first (`name`, `title`, `slug`, `label`, `key`):
+
+```sql
+SELECT 'api_keys' AS tbl, 'name' AS col, id FROM api_keys WHERE name = :tracer
+UNION ALL
+SELECT 'endpoints', 'name', id FROM endpoints WHERE name = :tracer;
+```
+
+Whatever returns is the table and column the action wrote to.
+
+**4. Walk the foreign keys** outward to the child rows — `api_keys`
+holds an `endpoint_id`, not the name, so it is reached from
+`endpoints.id`. Two levels is almost always enough.
+
+**5. Diff by primary key** — re-read those rows before and after and
+compare field by field. This is what answers *where is it updated*:
+
+| Observed | Verdict |
+|---|---|
+| Row exists where it did not | INSERT — list the columns it filled |
+| Same key, some columns differ | UPDATE — each column `before → after` |
+| Row gone | DELETE (hard) |
+| Row present, `deleted_at`/`status` now set | Soft delete — recorded as an UPDATE, **and raised**, since hard vs soft delete is usually an open question |
 
 Because every query is scoped to one tracer or one primary key:
 
@@ -69,7 +98,48 @@ Because every query is scoped to one tracer or one primary key:
 | Reading real customer data | Only your own tracer and the ids it leads to are ever queried |
 | Other traffic skewing results | Impossible — nothing is counted globally, so someone else's click cannot affect your row |
 
-No quiet maintenance window is needed.
+No quiet maintenance window is needed. This is the main advantage over
+counting rows before and after.
+
+## 2b. What lands in the event file
+
+```markdown
+### DB effect (Tier 2)
+| Table | Operation | Change | Confidence | How we know |
+|---|---|---|---|---|
+| `api_keys` | INSERT | filled `id, endpoint_id, name, key_hash, created_at` | confirmed | tracer found in `api_keys.name` |
+| `endpoints` | UPDATE | `key_count` 0 → 1 · `updated_at` bumped | confirmed | row diff by PK (FK walk) |
+
+Not reachable by tracer: `audit_log` (+1 row, no foreign key to our row)
+```
+
+| Confidence | When |
+|---|---|
+| `confirmed` | Row located by tracer or primary key, diff deterministic |
+| `likely` | A table count moved but the row could not be isolated |
+| `PENDING` | No DB access yet |
+
+**How we know** matters as much as the data. In six months, "how do we
+know this?" is the question someone will ask.
+
+## 2c. Read-only is enforced three times
+
+1. The database user has `SELECT` rights only
+2. `DbClient` opens every query in a read-only transaction
+3. `DbClient` rejects any statement that does not start with `SELECT`
+
+If the user turns out to be able to write, the agent **stops** and
+reports it as a Sev-1 environment risk.
+
+## 2d. The two kinds of check it adds
+
+| Kind | Where | Example |
+|---|---|---|
+| **Inside existing API/E2E tests** | The spec gains a DB step after the action | `[TC-001]` creates an endpoint via API → row exists, owned by `qa-tenant-a` |
+| **Standalone integrity checks** | `tests/db/<area>.db.spec.ts` | No key rows without an endpoint · no plain-text keys · no leftover `qa-` rows older than 24 h |
+
+Both carry the `@db` tag, so `--grep @db` runs everything DB-related,
+while `npm run test:db` runs only the standalone project.
 
 ## 3. Optional files you can add here
 
