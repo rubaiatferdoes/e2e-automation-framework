@@ -85,6 +85,9 @@ Steps 1–3 are one trip through the app recorded three ways: the path, what
 each action did, and what each field accepts. Run 1 first; 2 and 3 mine
 the same recording.
 
+**Full detail on every command — input, output, arguments, gotchas:**
+[docs/commands.md](docs/commands.md)
+
 Tip: every command takes a selection, so you can work on one part:
 `/discovery:explore-app seq:create-endpoint`,
 `/test-design:test-case-designer module:keys`,
