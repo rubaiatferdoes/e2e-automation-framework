@@ -8,6 +8,12 @@ description: The end-to-end journey of the API endpoint builder — create endpo
 **Goal:** prove a customer can go from zero to a working, secured API —
 and that it is fully gone when they delete it.
 
+This journey is the map discovery uses: walking these six steps is how
+the product gets explored in the first place, and a step that cannot be
+completed on the live app is the most important finding a first walk can
+produce. The checkpoints below are what to *look for* while walking, and
+what to *assert* once they are approved.
+
 ## The journey and what to check at each step
 
 | # | Step | UI check | API check | Docs check | DB check (optional*) |

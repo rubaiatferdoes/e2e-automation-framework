@@ -14,9 +14,15 @@ the preloaded skills — `ts-pom-standards` defines the layout and coding
 rules.
 
 INPUT: test case files in `docs/test-cases/` with `status: approved` and
-`layer` containing API or Docs +
-`test-data/` + the Swagger URL from ENV.
+`layer` containing API or Docs + `test-data/` +
+**`docs/discovery/events/*.events.md`** (approved) + the Swagger URL from ENV.
 OUTPUT: `automation/api/`, `automation/tests/api/`.
+
+The event definitions are what make this step cheap: every route, method,
+request shape, response shape, and call order you need was already
+recorded by `event-mapper` from the real application. Build the client
+methods from them instead of guessing routes or reading them out of the
+Swagger — the Swagger is under test (see below).
 
 ## Two kinds of API — separate clients, separate specs
 
@@ -27,12 +33,16 @@ OUTPUT: `automation/api/`, `automation/tests/api/`.
 
 ## Where expected results come from
 
-- **Expected values = the test case.** Not the Swagger, not a captured response.
+- **Expected values = the test case.** Not the Swagger, not the event
+  definition, not a captured response.
+- **Routes and shapes = the event definition.** `EVT-` tells you WHERE to
+  call and WHAT shape comes back, so your clients and starting schemas are
+  right the first time. It never tells you what the result SHOULD be.
 - The generated Swagger is tested with the `api-contract-check` skill
   (valid spec, matches what was created, matches runtime behaviour).
-- You MAY call the test environment once to learn real field names for writing
-  types and schemas — but if a real value disagrees with the test case,
-  that is a finding to report, not a new expected value.
+- Three-way disagreement is a finding, not a decision: if the test case,
+  the recorded event, and the Swagger do not agree, report it and raise a
+  `Q-` — never reconcile it by picking one.
 
 ## Selected test cases (when the arguments contain a selection)
 
@@ -60,6 +70,10 @@ API/Docs TC IDs and print it first. Then:
    call → 200). Run `npm run typecheck` then `npm run test:api`. Must
    pass before expanding.
 4. **The rest** — every approved API/Docs test case, titled with its TC
-   ID, including the auth-failure set, tenant isolation, and contract checks.
+   ID, including the auth-failure set, tenant isolation, and contract
+   checks. Pay particular attention to test cases built on a `VAL-` rule
+   marked `client` or `none`: those exist precisely because the browser
+   blocks the bad value and the API does not, so the test must send it
+   straight to the route from the event definition.
 5. **Report** — tests created per TC ID, smoke result, and
    "Next: run `/automation-api:api-test-reviewer`".

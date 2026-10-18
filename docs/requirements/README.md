@@ -1,6 +1,19 @@
-# docs/requirements — put requirement material here
+# docs/requirements — put requirement material here (optional)
 
 Everything in this folder is read by `/requirements:analyze-requirements`.
+
+**This folder may stay empty.** The application already exists, so the
+framework learns how it behaves by travelling it
+(`/discovery:explore-app` → `docs/discovery/`). Requirement documents
+are the other half of the picture: what the product was *supposed* to
+do. When both exist, the test planner compares them and every
+disagreement becomes a question or a suspected bug — which is how most
+real defects are found.
+
+With no documents at all, expected results rest on approved observation
+alone. That works, but it means a behaviour nobody questions becomes
+"correct" by default, so anything you can add here is worth adding —
+even a one-page email.
 
 ## What to add
 

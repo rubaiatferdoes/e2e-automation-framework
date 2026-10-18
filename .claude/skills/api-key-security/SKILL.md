@@ -59,6 +59,10 @@ text — **never** a 5xx, never executed (no script runs in the UI).
 ## Rules
 
 - Response code for cross-tenant access (403 vs 404) and the revocation
-  delay are product decisions. Use the answer from the requirement
-  analysis; if missing, mark `ASSUMPTION — verify` and raise a Q-.
+  delay are **product decisions, not observations**. Watching the app
+  return 404 does not settle it — that is exactly the kind of behaviour
+  that could be the bug. Use the confirmed answer from product (via the
+  requirement analysis or an approved `Q-`); if there is none, mark
+  `ASSUMPTION — verify`, raise a `Q-`, and let the test skip itself
+  (`ENV.crossTenantStatus`).
 - A security failure is at least P1 / Sev-2.

@@ -1,5 +1,5 @@
 ---
-description: Step 5 — DB Validator agent — compare schema vs requirements, add read-only DB checks to the TypeScript automation (needs DB type + schema)
+description: Step 8 — DB Validator agent — compare the schema with the validations, fill the PENDING table mappings in the event definitions, add read-only DB checks (needs DB type + schema)
 argument-hint: [all | module:keys | flow:1 | TC IDs]
 context: fork
 agent: db-validator

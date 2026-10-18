@@ -24,6 +24,13 @@ plus the pages and locators they use.
 - [ ] `npm run typecheck` and `npm run lint` pass; no `any`, no `require`
 - [ ] Every test title starts with a TC ID that has a file in `docs/test-cases/`;
       no invented scenarios, no missing approved ones (list both)
+- [ ] Selectors match what discovery recorded; any selector not in the
+      artifacts is flagged so `event-mapper` can record it
+- [ ] Asserted error messages match the `VAL-` rule exactly, character
+      for character — not paraphrased or trimmed
+- [ ] Waits are on the routes the event definitions recorded, in the
+      recorded order; screens with a `background` event never assert
+      between polls
 - [ ] Data created through fixtures/API clients; cleanup runs on failure
 - [ ] No `waitForTimeout`; key-dead checks use `expect.poll()`
 - [ ] No test expects a 5xx; cross-tenant status from ENV

@@ -9,7 +9,7 @@
 | Environment | Test environment — <URL name, not the full URL> · build <version> |
 | Browser / client | Chromium <ver> / Playwright API test / curl |
 | Test case | TC-<nnn> |
-| Requirement | F-<nnn> / BR-<nnn> |
+| Violates | SEQ-<nnn> / VAL-<nnn> / EVT-<nnn> (and F-/BR- where documents exist) |
 | Reproducible | Always / Intermittent (<x> of <y> runs) |
 
 ## Steps to reproduce
@@ -17,14 +17,15 @@
 2. ...
 
 ## Expected result
-<from TC-/BR- — quote it>
+<quote the TC- step, and the SEQ-/VAL- (or BR-) it rests on>
 
 ## Actual result
 <exact message / status code / response>
 
 ## Evidence
 - Screenshot: `reports/artifacts/...`
-- Trace: `reports/artifacts/...`
+- Video: `reports/artifacts/...`
+- Trace: `reports/artifacts/...` (open with `npx playwright show-trace`)
 - Request / response (keys masked):
 ```http
 GET /qa-tc014-lz3k9a-w2-x7f1 HTTP/1.1

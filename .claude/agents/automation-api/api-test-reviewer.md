@@ -23,8 +23,12 @@ review, run, and stabilize only those tests — plus any client code they use.
 - [ ] `npm run typecheck` and `npm run lint` pass; responses typed; no `any`
 - [ ] Every test title starts with a TC ID that has a file in
       `docs/test-cases/`; no approved API/Docs TC is missing (list both)
-- [ ] Expected values come from test cases — not copied from responses
-      or from the generated Swagger
+- [ ] Expected values come from test cases — not copied from responses,
+      from the generated Swagger, or from the recorded event definition
+- [ ] Routes match the event definitions (`EVT-`); a route that appears
+      in no event is flagged — it was guessed
+- [ ] Every `VAL-` rule marked `client` or `none` has a test that sends
+      the bad value straight to the API
 - [ ] Schema validation on every response
 - [ ] Contract checks present (spec valid, docs match created endpoint,
       runtime matches docs)

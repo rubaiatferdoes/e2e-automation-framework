@@ -21,6 +21,15 @@ automation/
 │                               OPTIONAL ones (revocation delay, cross-tenant status,
 │                               DB_*) may be empty
 ├── types/                      Endpoint, ApiKey, ErrorResponse ...
+├── discovery/                  ── DISCOVERY HARNESS (learn the app) ──
+│   ├── explore.ts                       CLI: run one walk, write artifacts
+│   ├── session.ts                       login per tenant, reusable storageState
+│   ├── recorders/network.ts             request/response capture per step
+│   ├── recorders/screens.ts             screenshot + field/attribute dump
+│   ├── recorders/console.ts             console errors and page errors
+│   ├── recorders/dbDiff.ts              read-only snapshot/diff (skipped without DB_TYPE)
+│   ├── walks/<name>.walk.ts             one replayable walk per SEQ-
+│   └── artifacts/<walk>/                raw recordings (gitignored)
 ├── ui/                         ── PAGE OBJECT MODEL ──
 │   ├── locators/<feature>.locators.ts   selector strings ONLY
 │   └── pages/<Feature>Page.ts           one business action per method
@@ -46,14 +55,45 @@ automation/
 ```
 
 `package.json` scripts: `test`, `test:api`, `test:ui`, `test:e2e`, `test:db` (`--project=db`),
-`test:headed`, `typecheck` (`tsc --noEmit`), `lint`, `report`.
+`test:headed`, `discover` (`tsx discovery/explore.ts`), `typecheck` (`tsc --noEmit`),
+`lint`, `report`.
+
+### The discovery harness
+
+Discovery runs before any test exists, so whichever agent walks the app
+first creates `automation/` and builds `discovery/` inside it. It shares
+`config/env.ts`, `types/`, and the login helper with the tests — one
+project, one source of truth for URLs and credentials.
+
+A walk file is the sequence as code, and the UI generator reuses it as
+the skeleton of the real test:
+
+```ts
+// discovery/walks/generate-api-key.walk.ts
+export const walk: Walk = {
+  id: 'SEQ-002',
+  title: 'Generate an API key for an endpoint',
+  tenant: 'a',
+  steps: [
+    { screen: 'endpoint-list',   do: (p) => p.goto('/endpoints') },
+    { screen: 'endpoint-detail', do: (p) => p.getByRole('link', { name: qaEndpoint }).click() },
+    { screen: 'generate-key',    do: (p) => p.getByRole('button', { name: /generate key/i }).click() },
+  ],
+};
+```
+
+Each step writes `artifacts/<walk>/screens/<SEQ>-<step>-<screen>.png`,
+the DOM field dump, and the network slice for that step — so every
+request can be traced back to the click that caused it.
+`artifacts/` is gitignored; screenshots that become evidence are copied
+into `docs/discovery/screens/`.
 
 ### First-time setup (whoever creates `automation/` runs this once)
 
 ```bash
 cd automation
 npm init -y
-npm i -D @playwright/test typescript @types/node dotenv ajv ajv-formats @faker-js/faker \
+npm i -D @playwright/test typescript tsx @types/node dotenv ajv ajv-formats @faker-js/faker \
   eslint typescript-eslint
 npx playwright install chromium
 ```
@@ -205,8 +245,14 @@ test('[TC-001] create endpoint stores it for the right tenant',
 
 ## 5. Selectors (UI)
 
-Verify in the real DOM first. Priority: `data-testid` → id → role/label
-(`getByRole`, `getByLabel`) → stable class → text (last resort).
+Take them from the discovery artifacts — the DOM dump recorded while
+walking the real app, so they are already verified. If one is missing,
+check the live page, then report it so the event definition gains it.
+Never guess. Priority: `data-testid` → id → role/label (`getByRole`,
+`getByLabel`) → stable class → text (last resort).
+
+When a selector breaks later, the healer updates it in ONE place
+(`ui/locators/`) and records the change so discovery stays true.
 
 ## 6. Config (`playwright.config.ts`)
 
@@ -215,13 +261,17 @@ Verify in the real DOM first. Priority: `data-testid` → id → role/label
   Each script runs one project: `test:api` → `--project=api`, and so on.
 - timeout 60s (key-dead tests raise their own — see section 4), expect 10s, `fullyParallel: true`, `retries: process.env.CI ? 2 : 0`.
 - Reporter: list + HTML to `reports/html` (`open: 'never'`).
-- Screenshot + trace on failure → `reports/artifacts`.
+- Screenshot, trace, **and video** on failure → `reports/artifacts`
+  (`screenshot: 'only-on-failure'`, `trace: 'retain-on-failure'`,
+  `video: 'retain-on-failure'`). The healer diagnoses from these: a
+  failure with no video is one somebody has to reproduce by hand.
 - `baseURL` from ENV; `ignoreHTTPSErrors: true` for the test environment.
 
 ## 7. Commands
 
 | Goal | Command (in `automation/`) |
 |---|---|
+| Walk the app (discovery) | `npm run discover -- walks/<name>.walk.ts` |
 | All tests | `npm test` |
 | API only / UI only / E2E only | `npm run test:api` / `test:ui` / `test:e2e` |
 | Smoke only | `npx playwright test --grep @smoke` |

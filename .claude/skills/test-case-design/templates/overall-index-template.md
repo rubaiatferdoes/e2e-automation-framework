@@ -12,10 +12,11 @@ summary; open a module folder for its cases.
 | Positive | Negative | Boundary | Security | E2E | Total |
 |---|---|---|---|---|---|
 
-## Traceability — every requirement to its test cases
+## Traceability — every discovered behaviour to its test cases
 | Req ID | Module | Test cases | Covered? |
 |---|---|---|---|
-| F-006 | keys | TC-014, TC-019 | ✅ |
+| SEQ-002 | keys | TC-012, TC-014 | ✅ |
+| VAL-008 | keys | TC-013 | ✅ |
 
 ## Change log
 | CR | Date | Summary | IDs touched |

@@ -1,291 +1,351 @@
 # Example: one module end to end — API keys
 
-> **This is an illustrative example.** The requirement text and outputs
-> are invented, but every format, ID, file name, and command is exactly
-> what the framework uses. Use it to see what "good" looks like at each step.
+> **This is an illustrative example.** The screens and outputs are
+> invented, but every format, ID, file name, and command is exactly what
+> the framework uses. Use it to see what "good" looks like at each step.
 
 ```
-analyze-requirements module:keys → test-planner module:keys → data-factory module:keys
-→ api-test-generator module:keys → (api-test-reviewer) → test-executor module:keys
+explore-app → event-definition → validation-definition → test-planner
+→ test-case-designer → data-factory → api-test-generator → test-executor
+→ investigate-failures
 ```
 
 ---
 
 ## The starting point
 
-The endpoints module was analyzed last week (used F-001..F-003,
-BR-001..BR-006, TC-001..TC-011). Product sends:
+No PRD. No mockups. What we have is what the team actually gave us:
 
-**`docs/requirements/prd-v1.2.pdf` — §4 API Keys**
-> 4.1 A customer can generate up to 5 API keys per endpoint.
-> 4.2 Each key needs a name (3–40 characters).
-> 4.3 The key is shown once after generation.
-> 4.4 A customer can revoke a key. Revoked keys stop working.
-> 4.5 Callers send the key in the `x-api-key` header.
+```
+TEST_ENV_BASE_URL = <the test environment>
+QA_TENANT_A_USER  = <a test login>
+```
 
-**`docs/requirements/mockup-05-generate-key.png`** — a "Generate key" dialog,
-and a key list with a **"Copy key"** button on every row.
+and a sentence from the product owner: *"check the API key part — a
+customer generates a key for an endpoint and calls it."*
 
-**`docs/requirements/client-notes-2026-10-15.md`**
-> "Client mentioned keys should probably expire, maybe after 90 days?"
+That is enough to start.
 
 ---
 
-## Step 1 — Analyze only the keys module
+## Step 1 — Travel the app
 
 ```
-/requirements:analyze-requirements module:keys
+/discovery:explore-app "generate an API key for an endpoint and copy it"
 ```
 
-Runs in your chat. Reads all input, analyzes only key-related material,
-continues numbering after the endpoints module.
+The agent scaffolds `automation/discovery/`, logs in as `qa-tenant-a`,
+creates its own endpoint to work with (`qa-seq002-lz3k9a-x7f1`), and
+walks the workflow one screen at a time — screenshotting each screen and
+recording every request.
 
 **Chat summary**
 ```
-Analyzed: module keys (PRD §4, mockup-05, client-notes-2026-10-15)
-Skipped:  PRD §2–3 (endpoints — already approved), §5 (docs)
+Walked: SEQ-002 "Generate an API key for an endpoint" — 4 steps, 5 screenshots
+Created and deleted: qa-seq002-lz3k9a-x7f1 (endpoint)
 
-Features: 4 (F-004..F-007)   Rules: 5 (BR-007..BR-011)   Gaps: 5   Questions: 5
+Findings: 2
+  1. "Copy key" button appears on the key LIST too, after reload — but the
+     key is masked there, so it copies "sk_...a1b2". Looks unintended.
+  2. Generating a key took 4.1 s. Slow enough to flake a test later.
 
-Top gaps:
- [MISSING]  How fast must a revoked key stop working? (flow step 5)
- [CONFLICT] PRD 4.3 "shown once" vs mockup-05 "Copy key" button on every row
- [UNCLEAR]  Key expiry "maybe 90 days" — client note only, not in PRD
- [MISSING]  Response when tenant B uses its key on tenant A's endpoint (403 or 404?)
- [MISSING]  Is the key stored hashed?
-
-Needed first: Q-005 — revocation delay (can't write the "key is dead" test without it)
+Questions: 1
+  Q-001  Is the key meant to be shown only once? The list still offers "Copy".
 ```
 
-**Added to `docs/analysis/requirement-analysis.md`**
+**`docs/discovery/sequences/SEQ-002-generate-api-key.md`**
 
+```markdown
+---
+id: SEQ-002
+title: Generate an API key for an endpoint
+module: keys
+flow: [3]
+screens: [endpoint-list, endpoint-detail, generate-key-dialog, key-shown]
+events: []
+validations: []
+walk: automation/discovery/walks/generate-api-key.walk.ts
+status: draft
+---
+
+## Path
+| # | Screen | Action | What happened (observed) | Event | Screenshot |
+|---|---|---|---|---|---|
+| 1 | Endpoint list | Open /endpoints | Table of endpoints, "Create endpoint" top right | | [png] |
+| 2 | Endpoint detail | Click the endpoint name | "API keys" panel, empty state "No keys yet" | | [png] |
+| 3 | Generate key dialog | Click "Generate key" | Dialog, one field "Key name", buttons Cancel / Generate | | [png] |
+| 4 | Key shown | Type a name, click Generate | Full key shown once, Copy button, "You won't see this again" | | [png] |
 ```
-### Module: API keys [keys]
-#### F-004: The system shall generate an API key for an endpoint when the customer gives it a valid name.
-| BR-007 | Max 5 keys per endpoint            | PRD §4.1 |
-| BR-008 | Key name required, 3–40 characters | PRD §4.2 |
-#### F-005: The system shall show the full key only once after generation.
-| BR-009 | Full key shown once, then masked   | PRD §4.3 |
-#### F-006: The system shall reject calls made with a revoked key.
-| BR-010 | Revoked key → request rejected     | PRD §4.4 |
-#### F-007: The system shall authenticate endpoint calls with the x-api-key header.
-| BR-011 | Key sent in x-api-key header       | PRD §4.5 |
-```
 
-| ID | Question | Unblocks |
-|---|---|---|
-| Q-005 | How many seconds until a revoked key stops working? | F-006, flow 5 |
-| Q-006 | Is "Copy key" on the list a mistake? PRD says shown once | BR-009 |
-| Q-007 | Cross-tenant key use: 403 or 404? | F-007, E2E-04 |
-| Q-008 | Do keys expire? Client said "maybe 90 days" | F-006 |
-| Q-009 | Is the key stored hashed, not plain text? | BR-009 |
+Note the Event column is empty, and nothing says "works correctly". It
+records what was on the screen.
 
-**You check:** every rule cites PRD §4 · the conflict is a question, not
-a guess · module index shows "keys: Analyzed — awaiting approval".
+**You check:** the path matches what a real user would do · findings are
+raised, not smoothed over · the endpoint it created was deleted.
 
-**Then:** send Q-005..Q-009 to product, approve the analysis. Product
-answers Q-005 ("within 60 seconds") → add it to `docs/requirements/answers.md`
-→ `/change:impact-analysis answers` → Q-005 closed, new rule
-**BR-012: Revoked key rejected within 60 s**.
+**Then:** approve the sequence.
 
 ---
 
-## Step 2 — Test cases for the keys module
+## Step 2 — What each action really does
+
+```
+/discovery:event-definition SEQ-002
+```
+
+No second walk — it mines the recording from step 1.
+
+**`docs/discovery/events/keys.events.md`** (one event of four)
+
+```markdown
+## EVT-012 — Generate key
+| Type | click · generate-key-dialog · `[data-testid="generate-key-submit"]` |
+| From | SEQ-002 step 4 |
+
+### API calls (Tier 1 — observed)
+| # | Method | Route | Request | Status | Response | ms |
+|---|---|---|---|---|---|---|
+| 1 | POST | /api/endpoints/{id}/keys | { name: string } | 201 | { id, name, key, status } | 3900 |
+| 2 | GET  | /api/endpoints/{id}/keys | — | 200 | { items: [{ id, name, maskedKey, status }] } | 180 |
+
+Order: POST completes before the list GET fires.
+
+### DB effect (Tier 2)
+> PENDING — no read-only DB access yet. Raised as Q-002.
+
+### Findings
+| 1 | The POST response logs the full key to the browser console | Key can leak into logs | BUG candidate |
+```
+
+Three things just became possible: the API tests know the real route, the
+UI tests know what to wait for instead of sleeping, and the 3.9-second
+POST explains the "slow" finding from step 1.
+
+**You check:** routes have `{id}` not a literal UUID · the DB block says
+PENDING instead of a guess · the console-logging finding is raised.
+
+---
+
+## Step 3 — What the fields accept
+
+```
+/discovery:validation-definition screen:generate-key-dialog
+```
+
+Reads the DOM first, then probes the field, then — the part that matters
+— sends the same bad values straight to `POST /api/endpoints/{id}/keys`.
+
+**`docs/discovery/validations/keys.validations.md`**
+
+| ID | Field | Rule | Trigger | Message (exact) | Enforced |
+|---|---|---|---|---|---|
+| VAL-007 | Key name | required | on submit | `Key name is required.` | both |
+| VAL-008 | Key name | max length 40 | on type | — (typing stops at 40) | **client** |
+| VAL-009 | Key name | min length 3 | on submit | `Key name must be at least 3 characters.` | both |
+| VAL-010 | Key name | unique per endpoint | server | `A key with this name already exists.` | server |
+
+```
+Findings: 1
+  VAL-008 is enforced in the browser only. The API accepted a 256-character
+  key name and stored it. Any API caller writes names the UI can never show.
+  → BUG candidate, and a test case the UI alone would never have found.
+```
+
+**You check:** messages quoted exactly, full stops included · the
+`client`-only row is flagged, not recorded as a normal rule.
+
+**Then:** approve all three discovery files. **This approval is the
+moment observation becomes expectation** — everything downstream now
+treats these as the truth.
+
+---
+
+## Step 4 — Decide what to test
 
 ```
 /test-design:test-planner module:keys
 ```
 
-Resolves: `module:keys → F-004..F-007, BR-007..BR-012 · flow steps 3, 4, 5 · E2E-02, E2E-03, E2E-04, E2E-07`
+Thinks like a principal test engineer: what is worth testing, how deep,
+and what we will not test.
 
-**Written to `docs/test-cases/keys/`** — one file per case, plus the
-module `README.md` index (table below) and the overall
-`docs/test-cases/README.md`.
+**`docs/test-plan.md`** (the keys rows)
 
-| TC ID | Title | Req IDs | Module / Flow | Pri | Type | Layer |
+| Flow step | UI | API | Docs | DB | Priority | Why |
 |---|---|---|---|---|---|---|
-| TC-012 | Generate key with valid name shows full key once | F-004, BR-009 | keys / 3 | P0 | Positive | UI+API |
-| TC-013 | Key name length limits (data-driven) | BR-008 | keys / 3 | P2 | Boundary | API |
-| TC-014 | Revoked key rejected within 60 s | F-006, BR-012 | keys / 5 / E2E-03 | P0 | E2E | API |
-| TC-015 | 6th key on one endpoint is rejected | BR-007 | keys / 3 | P2 | Boundary | API |
-| TC-016 | Key is masked after page reload | BR-009 | keys / 3 | P1 | Security | UI |
-| TC-017 | Tenant B's key can't call tenant A's endpoint | F-007 | keys / 4 / E2E-04 | P1 | Security | API |
-| TC-018 | Missing / empty / wrong / malformed key → 401 | F-007, BR-011 | keys / 4 / E2E-02 | P0 | Negative | API |
-| TC-019 | Two keys, revoke one, the other still works | F-006 | keys / 5 / E2E-07 | P2 | E2E | API |
+| 3. Generate API key | In | In | — | Later (PENDING) | P0 | Show-once is unrecoverable if wrong |
+| 5. Revoke key | In | In | — | Later | P0 | A key that outlives revocation is a security hole |
 
-One of those files, `docs/test-cases/keys/TC-014-revoked-key-rejected.md`:
+```
+No requirement documents exist for this module. Expected results rest on
+approved observation — recorded as a risk.
 
-```markdown
----
-id: TC-014
-title: Revoked key rejected within 60 s
-module: keys
-flow: [5]
-e2e: E2E-03
-requirements: [F-006, BR-012]
-priority: P0
-type: E2E
-layer: [API]
-data: []
-status: draft
----
-# TC-014: Revoked key rejected within 60 s
-
-## Precondition
-- Logged in as `qa-tenant-a`; one `qa-` endpoint with one active key
-
-## Steps
-| # | Action | Expected result |
-|---|---|---|
-| 1 | Call the endpoint with the key | 200 |
-| 2 | Revoke the key | Key shows as revoked |
-| 3 | Call again with the same key, retrying every second | 401 within 60 s; no data in the response |
+Conflicts: none (nothing to compare against).
+Depth decisions:
+  - VAL-008 is client-only → the boundary case runs at the API layer, not the UI
+  - EVT-012 takes 3.9 s → condition-based waits only; this test is not @smoke
 ```
 
-- TC-017 is marked `ASSUMPTION — verify (Q-007)` — 403 vs 404 is still open.
-- Key expiry is NOT tested — it's an open question (Q-008), not a requirement.
-
-**You check:** 8 cases, not 30 · every rule covered · P0 for flow steps
-3, 4, 5 · boundaries merged into one data-driven case (TC-013).
-
-**Then:** approve `docs/test-cases/keys/` — the data factory only fills
-data into APPROVED cases (CLAUDE.md "Draft, revise, approve").
+**You check:** every "Later" has a reason · the missing-documents risk is
+stated rather than hidden.
 
 ---
 
-## Step 3 — Test data for the keys module
+## Step 5 — Manual test cases
+
+```
+/test-design:test-case-designer module:keys
+```
+
+Input: the test plan, SEQ-002, and the validations. Not the events —
+those are for the automation step.
+
+| TC ID | Title | From | Pri | Type | Layer |
+|---|---|---|---|---|---|
+| TC-012 | Generate key with valid name shows full key once | SEQ-002, VAL-007 | P0 | Positive | UI+API |
+| TC-013 | Key name length limits (data-driven) | VAL-008, VAL-009 | P2 | Boundary | API |
+| TC-014 | Revoked key rejected within the agreed delay | SEQ-003 | P0 | E2E | API |
+| TC-015 | Duplicate key name rejected | VAL-010 | P2 | Negative | API |
+| TC-016 | Key is masked after page reload | SEQ-002, Q-001 | P1 | Security | UI |
+
+TC-013 is at the **API layer on purpose** — VAL-008 is client-only, so a
+UI test would pass while the hole stayed open. That one decision is the
+whole reason step 3 checks enforcement.
+
+**You check:** 5 cases, not 30 · every case cites a SEQ- or VAL- · TC-016
+is marked `ASSUMPTION — verify (Q-001)` because the show-once rule is
+still open.
+
+---
+
+## Step 6 — Test data
 
 ```
 /test-data:data-factory module:keys
 ```
 
-Resolves: `module:keys → TC-012..TC-019`
+Boundaries come straight from VAL-008/VAL-009 (3–40 characters):
 
-**`test-data/negative-data.json`** (boundaries for BR-008: 3–40 characters)
 ```json
 [
-  { "id": "DAT-021", "field": "keyName", "value": "", "expected": "rejected", "rule": "BR-008", "used_by": ["TC-013"] },
-  { "id": "DAT-022", "field": "keyName", "value": "ab", "expected": "rejected", "rule": "BR-008", "used_by": ["TC-013"] },
-  { "id": "DAT-023", "field": "keyName", "value": "abc", "expected": "accepted", "rule": "BR-008", "used_by": ["TC-013"] },
-  { "id": "DAT-024", "field": "keyName", "value": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk", "expected": "accepted", "rule": "BR-008", "used_by": ["TC-013"] },
-  { "id": "DAT-025", "field": "keyName", "value": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk", "expected": "rejected", "rule": "BR-008", "used_by": ["TC-013"] }
+  { "id": "DAT-021", "field": "keyName", "value": "ab",            "expected": "rejected", "rule": "VAL-009", "used_by": ["TC-013"] },
+  { "id": "DAT-022", "field": "keyName", "value": "abc",           "expected": "accepted", "rule": "VAL-009", "used_by": ["TC-013"] },
+  { "id": "DAT-023", "field": "keyName", "value": "{repeat:k:40}", "expected": "accepted", "rule": "VAL-008", "used_by": ["TC-013"] },
+  { "id": "DAT-024", "field": "keyName", "value": "{repeat:k:41}", "expected": "rejected", "rule": "VAL-008", "used_by": ["TC-013"] }
 ]
 ```
 
-**`test-data/security-data.json`** (fake keys for TC-018)
-```json
-[
-  { "id": "DAT-030", "field": "x-api-key", "value": "not-a-real-key", "expected": "401", "rule": "BR-011", "used_by": ["TC-018"] }
-]
-```
-
-`docs/test-cases/keys/TC-013-key-name-length-limits.md` now has
-`data: [DAT-021, DAT-022, DAT-023, DAT-024, DAT-025]` in its front matter.
-
-**You check:** 2, 3, 40, 41 characters all present (min−1, min, max,
-max+1) · no real keys anywhere.
+DAT-024 expects `rejected` because the **rule** says 40, even though the
+API accepted 256 during discovery. The test will fail, and it should —
+that failure is the bug report.
 
 ---
 
-## Step 4 — API automation for the keys module
+## Step 7 — API automation
 
 ```
 /automation-api:api-test-generator module:keys
 ```
 
-Resolves: `module:keys → API cases TC-012, 013, 014, 015, 017, 018, 019`
-(TC-016 is UI-only → left for the Playwright generator).
+The client method comes from EVT-012's route:
 
-**Client method (API Object Model)**
 ```ts
 // automation/api/clients/PlatformClient.ts
-async revokeApiKey(endpointId: string, keyId: string): Promise<ApiResponse<void>> {
-  return this.delete<void>(`/endpoints/${endpointId}/keys/${keyId}`);
+async createApiKey(endpointId: string, name: string): Promise<ApiResponse<ApiKey>> {
+  return this.post<ApiKey>(`/endpoints/${endpointId}/keys`, { name });
 }
 ```
 
-**The test — reads like the test case**
 ```ts
 // automation/tests/api/keys.api.spec.ts
-test('[TC-014] revoked key rejected within 60 s',
-  { tag: ['@P0', '@F-006', '@mod-keys', '@flow-5', '@E2E-03', '@e2e', '@slow'] },
-  async ({ platform, endpointCaller, qaEndpoint }) => {
-    test.skip(!ENV.keyRevocationMaxMs, 'Waiting for product: revocation delay (Q-005)');
-    test.setTimeout(ENV.keyRevocationMaxMs + 60_000);
-    const key = await platform.createApiKeyFor(qaEndpoint);
-
-    // Step 1 — prove the key works first, so a broken key can't pass this test
-    const before = await endpointCaller.call(qaEndpoint, key.value);
-    expect(before.status).toBe(200);
-    expectMatchesSchema(before.body, 'endpoint-response');
-
-    // Step 2 — revoke, and the platform shows it as revoked
-    await platform.revokeApiKey(qaEndpoint.id, key.id);
-    expect((await platform.getApiKey(qaEndpoint.id, key.id)).body.status).toBe('revoked');
-
-    // Step 3 — the same key stops working within the agreed delay
-    await expect.poll(() => endpointCaller.status(qaEndpoint, key.value),
-      { timeout: ENV.keyRevocationMaxMs }).toBe(401);
-  });
+for (const row of dataFor('TC-013')) {
+  test(`[TC-013] ${row.id} key name "${short(row.value)}" is ${row.expected}`,
+    { tag: ['@P2', '@VAL-008', '@mod-keys', '@flow-3', '@api'] },
+    async ({ platform, qaEndpoint }) => {
+      const res = await platform.createApiKey(qaEndpoint.id, row.value);
+      expect(res.status).toBe(row.expected === 'accepted' ? 201 : 400);
+      expect(res.status).toBeLessThan(500);
+    });
+}
 ```
 
-- It proves the key **worked** (200 + schema check) before proving it
-  **stopped** working — otherwise a key that never worked would pass.
-- It is slow by design (up to the 60 s delay), so it sets its own timeout,
-  is tagged `@slow`, and is not part of `@smoke`.
-- No selectors or raw HTTP calls in the test — those live in the client.
-- `qaEndpoint` is a fixture: it creates `qa-tc014-lz3k9a-w2-x7f1` before the
-  test and deletes it after, even if the test fails.
-- `platform.createApiKeyFor()` is fixture-backed too: it registers the
-  key with `baseTest`'s cleanup tracking the moment it's created, so
-  teardown still revokes it even if this test fails before its own
-  revoke step (Step 2 above).
-- It polls up to the agreed 60 seconds — no fixed sleep.
-
-**Summary**
-```
-Created 7 tests for 7 TC IDs · smoke (E2E-01 API part) passed
-TC-013 runs 5 times (DAT-021..025)
-Next: /automation-api:api-test-reviewer module:keys
-```
-
-Recommended before execution: `/automation-api:api-test-reviewer module:keys`
-(3 green runs in a row = STABLE).
+- Route and payload shape from the event definition.
+- Expected status from the test case and its data — **not** from what
+  discovery observed.
+- `toBeLessThan(500)` because a 5xx is always a bug (CLAUDE.md).
 
 ---
 
-## Step 5 — Run the keys module
+## Step 8 — Run it
 
 ```
 /execution:test-executor module:keys
 ```
 
-Readiness → READY · typecheck ✓ · runs `npx playwright test --grep @mod-keys`,
-then the `@smoke` set as a guard.
-
-**`docs/reports/execution-2026-10-22.md` (excerpt)**
 ```
-Selection: module:keys → TC-012..TC-019
+| Suite       | Passed | Failed | Flaky | Skipped |
+| API (keys)  | 9      | 2      | 1     | 0       |
 
-| Suite        | Passed | Failed | Flaky | Skipped |
-| API (keys)   | 10     | 1      | 0     | 0       |
-| Smoke guard  | 3      | 0      | 0     | 0       |
+Failures (first pass — not diagnosed here)
+| TC-013 / DAT-024 | Suspected application bug | 201 where the case says 400 |
+| TC-012           | Suspected script bug      | locator timeout on the Generate button |
+Flaky
+| TC-016 | passed on retry | generate-key took 4.2 s
 
-Failures
-| Test   | Type            | Evidence                                               |
-| TC-014 | Application bug | Revoked key still returned 200 after 60 s (polled 60×) |
-
-Bugs raised: BUG-003 [API Key] Revoked key still works after 60 seconds — Sev-2
-
-Parity (keys only)
- TC-016 (UI, masked key) — no automated test yet → /automation-ui:playwright-generator TC-016
+Next: /healing:investigate-failures module:keys
 ```
 
-7 tests, but TC-013 runs once per data row (5) → 11 runs: 10 passed, 1 failed.
+The executor collects evidence and hands off. It does not file bugs —
+one agent should not both run the tests and judge them.
 
-`docs/bugs/BUG-003-revoked-key-still-works.md` holds steps, expected
-(quoting BR-012 / TC-014), actual (200 OK), request/response with the key
-masked (`sk_...a1b2`), and timestamps.
+---
+
+## Step 9 — Investigate every failure
+
+```
+/healing:investigate-failures module:keys
+```
+
+Reproduces each twice, then decides — from the trace, video and network,
+not the error text.
+
+```
+| Test            | Verdict           | Outcome          |
+| TC-013/DAT-024  | Application issue | BUG-003 (Sev-2)  |
+| TC-012          | Broken test       | FIX-001 proposed |
+| TC-016 (flaky)  | Broken test       | FIX-002 proposed |
+```
+
+**BUG-003** — the API accepts a 41-character key name while the UI stops
+at 40 (VAL-008). Exactly the hole step 3 predicted. Evidence: request,
+response, the VAL- rule, the TC- step.
+
+**FIX-001** — proposed, not applied:
+
+```diff
+--- a/automation/ui/locators/key.locators.ts
+-  generateSubmit: '[data-testid="generate-key-submit"]',
++  generateSubmit: '[data-testid="key-generate-confirm"]',
+```
+
+> Bug guard
+> - [x] Changes what is asserted? **No** — only where the button is
+> - [x] Same control? Yes — same dialog, same POST /api/endpoints/{id}/keys
+> - [x] Definitions to update? Yes — EVT-012 element, SEQ-002 step 4
+>
+> Blast radius: TC-012, TC-013, TC-016 · **PROPOSED — approve to apply**
+
+**FIX-002** — the flaky test waits for a toast. EVT-012 shows the POST
+takes ~4 s, so the proposal waits on the response instead:
+
+```diff
+-  await expect(page.keyShownDialog).toBeVisible();
++  await page.waitForResponse('**/endpoints/*/keys');
++  await expect(page.keyShownDialog).toBeVisible();
+```
+
+Note what the healer did **not** do: it did not raise the timeout, add a
+sleep, or relax the 400 in TC-013 to make the suite green.
 
 ---
 
@@ -293,12 +353,15 @@ masked (`sk_...a1b2`), and timestamps.
 
 | | |
 |---|---|
-| **Scope** | Only the keys module was touched — endpoints IDs, cases, data, tests unchanged |
-| **Traceability** | BUG-003 → TC-014 → BR-012 → answer to Q-005 → PRD §4.4 |
-| **Questions turn into tests** | Product's answer to Q-005 → BR-012 → TC-014 → found BUG-003 |
-| **Unknowns stay visible** | Expiry (Q-008) and 403-vs-404 (Q-007) are tracked, not guessed |
-| **Coverage gaps get caught** | Parity spotted that TC-016 still needs UI automation |
+| **No documents needed** | A URL, a login and one sentence produced 5 test cases, 11 test runs and a real bug |
+| **Observation ≠ truth** | Discovery recorded a 256-character key name; the test still expects 400, so the gap surfaced as BUG-003 |
+| **Enforcement check pays** | VAL-008's `client` verdict is what moved TC-013 to the API layer — a UI-only test would have passed |
+| **Events kill flakiness** | EVT-012's 3.9 s POST explained the flake and supplied the right wait |
+| **Healing has a limit** | Two tests fixed, one bug filed, nothing weakened, nothing committed |
+| **Traceability** | BUG-003 → TC-013 → DAT-024 → VAL-008 → SEQ-002 step 4 → a screenshot |
 
-**Next for this module:** `/automation-ui:playwright-generator TC-016` →
-after the fix, `/execution:test-executor TC-014` → when all P0/P1 pass,
-`/reporting:quality-reporter module:keys`.
+**Next for this module:** approve FIX-001 and FIX-002 → re-run
+`/execution:test-executor module:keys` → when the P0s pass,
+`/reporting:quality-reporter module:keys`. When read-only DB access
+arrives, `/database:db-validator module:keys` fills EVT-012's PENDING
+block and checks the key is stored hashed.

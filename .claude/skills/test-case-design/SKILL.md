@@ -1,6 +1,6 @@
 ---
 name: test-case-design
-description: Design manual test cases from an approved requirement analysis using standard techniques (equivalence partitioning, boundary values, decision tables, state transitions, error guessing). Produces one Markdown file per TC- case in a folder per module, plus module and overall indexes with a traceability matrix. Use when writing test cases, a test plan, or checking test coverage.
+description: Design manual test cases from approved discovery definitions (sequences, validations) and requirement documents where they exist, using standard techniques — equivalence partitioning, boundary values, decision tables, state transitions, error guessing. Produces one Markdown file per TC- case in a folder per module, plus module and overall indexes with a traceability matrix. Use when writing test cases or checking test coverage.
 ---
 
 # Test Case Design
@@ -8,8 +8,11 @@ description: Design manual test cases from an approved requirement analysis usin
 **Goal:** the smallest set of test cases that covers every requirement
 and every important risk. More cases is not better — better cases are.
 
-**Input:** `docs/analysis/requirement-analysis.md` (must be approved).
-**Output:** `docs/test-plan.md` plus one file per test case:
+**Input** (approved): the test plan, the sequences
+(`docs/discovery/sequences/`), the validations
+(`docs/discovery/validations/`), and — only where requirement documents
+exist — `docs/analysis/requirement-analysis.md`.
+**Output:** one file per test case:
 
 ```
 docs/test-cases/
@@ -30,6 +33,11 @@ Templates: [tc-template.md](templates/tc-template.md) ·
 - The front matter (between `---` lines) holds the fields agents read:
   `id, title, module, flow, e2e, requirements, priority, type, layer,
   data, status`. Keep them exact — the body is for people.
+- `requirements:` means "where this case's expected results come from".
+  It holds the discovery IDs the case rests on (`SEQ-002`, `VAL-008`)
+  and, where documents exist, `F-`/`BR-` IDs too. A case with an empty
+  `requirements:` cannot be impact-analysed later, so it is never
+  allowed.
 - `status`: `draft` → `approved` → (later, if removed) `deprecated`.
   A deprecated file stays in place.
 - After adding or changing cases, update the module `README.md` and the
@@ -54,8 +62,10 @@ Templates: [tc-template.md](templates/tc-template.md) ·
 - Steps: a numbered table, one action per row, each with its own
   expected result. No "etc.".
 - Expected result: a concrete, checkable outcome — exact message,
-  status code, or visible state. Never "works correctly".
-- Every case links to at least one F- or BR- ID.
+  status code, or visible state. Never "works correctly". Copy messages
+  and labels exactly as discovery recorded them; a paraphrased message
+  becomes a failing assertion.
+- Every case links to at least one `SEQ-`, `VAL-`, `F-`, or `BR-` ID.
 - Data-driven cases list their input rows in the file's "Test data"
   table; the data factory adds the DAT- IDs. Never real customer data.
 
@@ -78,7 +88,10 @@ Templates: [tc-template.md](templates/tc-template.md) ·
 
 ## Step 5 — Self-check before finishing
 
-- [ ] Traceability matrix: every F- and BR- maps to ≥1 TC
+- [ ] Traceability matrix: every in-scope SEQ-, VAL- (and F-/BR- where
+      they exist) maps to ≥1 TC
+- [ ] Every `VAL-` marked `client` or `none` has a case that sends the
+      bad value at the API layer, not only through the form
 - [ ] Every E2E flow step (CLAUDE.md) has ≥1 P0 case
 - [ ] Every feature has positive AND negative cases
 - [ ] Security cases from the `api-key-security` skill included

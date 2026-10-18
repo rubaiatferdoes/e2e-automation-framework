@@ -15,8 +15,12 @@ the first try, without asking QA anything.
 
 - [ ] Reproduced at least twice on the test environment
 - [ ] It's an **application bug** — not a script, data, or environment
-      problem (see the classification in `test-executor`)
+      problem, and not a stale expectation (see the triage tree in
+      `failure-healing`)
 - [ ] Searched `docs/bugs/` — not already reported
+- [ ] If it came from an automated run, the trace, video, and screenshot
+      are attached. Automation's advantage over a manual report is the
+      evidence — don't throw it away
 
 ## Severity vs priority (they are different)
 

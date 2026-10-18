@@ -1,5 +1,5 @@
 ---
-description: Step 6 — Test Executor agent — readiness check, run suites, classify failures, parity check, file bugs
+description: Step 9 — Test Executor agent — readiness check, run suites, classify failures, parity check, file bugs
 argument-hint: [all | api | ui | e2e | smoke | db | TC IDs | module:keys | flow:3 | F-003 | P0]
 context: fork
 agent: test-executor
