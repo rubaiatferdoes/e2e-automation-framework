@@ -55,7 +55,7 @@ normal. Always report, never bless:
 | Topic | Decision | Status |
 |---|---|---|
 | Customizing/editing an endpoint after creation | OUT of scope | Not confirmed if customers can edit — revisit |
-| Database type | Unknown — read-only access is coming | Event DB mapping stays `PENDING` and DB checks are skipped until `DB_TYPE` + schema are provided (see `docs/requirements/db/README.md`) |
+| Database type | Unknown — read-only access is coming | Event DB mapping stays `PENDING` and DB checks are skipped until the read-only credentials are in `.env`. A `SELECT` user is the whole ask — the schema is read from `information_schema` (see `docs/requirements/db/README.md`) |
 | Cross-tenant access response (403 vs 404) | Unknown | Ask product — never hard-code either |
 | Key revocation delay (how fast a key stops working) | Unknown | Ask product — poll up to that limit |
 | Requirement documents | Optional | If `docs/requirements/` is empty, discovery plus human confirmation is the only oracle. Say so in the test plan |

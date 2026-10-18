@@ -46,7 +46,7 @@ automation/discovery/
 ├── recorders/network.ts  page.on('request'|'response'|'requestfailed')
 ├── recorders/screens.ts  screenshot + field/attribute dump per screen
 ├── recorders/console.ts  page.on('console'|'pageerror')
-├── recorders/dbDiff.ts   read-only snapshot/diff — skipped when DB_TYPE is empty
+├── recorders/dbTrace.ts  read-only tracer lookup — skipped when DB_TYPE is empty
 ├── walks/<name>.walk.ts  one replayable walk per sequence
 └── artifacts/<walk>/     raw output (gitignored)
 ```

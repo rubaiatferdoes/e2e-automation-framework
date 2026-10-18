@@ -41,10 +41,18 @@ call 2 before asserting the list.
 ### DB effect (Tier 2)
 > PENDING — no read-only DB access yet. Raised as Q-0xx.
 
-<!-- When DB access arrives, db-validator replaces the line above with:
-| Table | Operation | Columns filled | Confidence | Evidence |
+<!-- When read-only DB access arrives, db-validator replaces the line
+     above with a table like this. For an INSERT, "Change" lists the
+     columns filled; for an UPDATE it shows each column before → after,
+     which is the "where is it updated" answer.
+
+| Table | Operation | Change | Confidence | How we know |
 |---|---|---|---|---|
-| `api_keys` | INSERT | `id, endpoint_id, name, key_hash, created_at, status` | confirmed | snapshot diff ×2, row `qa-seq002-...` |
+| `api_keys` | INSERT | filled `id, endpoint_id, name, key_hash, created_at, status` | confirmed | tracer found in `api_keys.name` |
+| `endpoints` | UPDATE | `key_count` 0 → 1 · `updated_at` bumped | confirmed | row diff by PK (FK walk from `endpoints.id`) |
+
+Not reachable by tracer: `audit_log` (+1 row, no foreign key to our row)
+     — counted only, not attributed.
 -->
 
 ### Findings
@@ -58,6 +66,14 @@ call 2 before asserting the list.
 | Route | When | Note |
 |---|---|---|
 | `GET /api/session` | Every screen load | Noise — ignore in per-event tables |
+
+## Not reachable by tracer (this module)
+Writes with no link back to our own row, so they cannot be attributed to
+one event. Listed once here rather than guessed at per event.
+
+| Table | Observed | Note |
+|---|---|---|
+| `audit_log` | Row count rises on most actions | No foreign key to our record; would need the app SQL log to attribute |
 
 ## Change log
 | CR | Date | Change |

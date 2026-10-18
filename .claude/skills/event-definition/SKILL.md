@@ -65,29 +65,106 @@ Until `DB_TYPE` is set, every event's DB block reads:
 > PENDING — no read-only DB access yet. Raised as Q-0xx.
 ```
 
-When read-only access arrives, `db-validator` fills these blocks in by
-**snapshot diff**, and only it may edit an approved event file's `db:`
-block (CLAUDE.md section 9):
+When read-only access arrives, `db-validator` fills these blocks in —
+and only it may edit an approved event file's `db:` block (CLAUDE.md
+section 9).
 
-1. Before the action: for each candidate table, record row count and the
-   maximum primary key / `updated_at`.
-2. Perform the action with a `qa-` record.
-3. After: diff. New rows → insert. Changed `updated_at` → update. Fewer
-   rows → delete.
-4. Narrow to the `qa-` row and list the columns it actually filled.
+**A read-only `SELECT` user is enough.** Nothing else is needed from
+backend or DevOps, and no quiet environment is needed either, because
+the method never counts rows globally — it follows one marked record.
 
-Snapshot diff is **approximate** — other traffic on a shared test
-environment can move the same tables. So:
+### The tracer
 
-- Run it on a quiet environment, and repeat each action twice.
-- Record a confidence: `confirmed` (same result twice, isolated row
-  matched) or `likely` (table moved but the row could not be isolated).
-- A table that changes on every action regardless of which action it was
-  is noise (session, audit, cache) — list it once per module, not per
-  event.
+Every record discovery creates carries a unique name:
+`qa-seq002-lz3k9a-x7f1`. That string exists nowhere else in the
+database, so it works as a tracer dye: instead of diffing the whole
+schema, go looking for your own value.
 
-Candidate tables come from the schema in `docs/requirements/db/`. Never
-`SELECT *` a table you cannot name a reason for.
+### The method
+
+**1. Read the catalog once per run** — this also replaces needing a
+schema export:
+
+```sql
+SELECT table_name, column_name, data_type, character_maximum_length, is_nullable
+FROM information_schema.columns
+WHERE table_schema = :schema;
+```
+
+Plus `table_constraints` and `key_column_usage` for primary and foreign
+keys. Cache it; every later step reads from this map.
+
+**2. Baseline, for events that change or remove something.** If a
+previous event already located the row, re-read it by primary key before
+the action. For a create event there is nothing to baseline.
+
+**3. Act** — trigger the event through the platform API with the tracer
+record. Never write to the database to set up a check.
+
+**4. Locate — this answers "which table, which column".** Query the text
+columns from the catalog for the literal tracer value, name-like columns
+first (`name`, `title`, `slug`, `label`, `key`):
+
+```sql
+SELECT 'api_keys' AS tbl, 'name' AS col, id FROM api_keys WHERE name = :tracer
+UNION ALL
+SELECT 'endpoints', 'name', id FROM endpoints WHERE name = :tracer;
+```
+
+Whatever returns is the table and column the action wrote to.
+
+**5. Walk the foreign keys outward.** Child rows do not hold the tracer
+— `api_keys` holds an `endpoint_id`, not the name. Using the FK map from
+step 1, query every table referencing the located row's primary key.
+Two levels is almost always enough.
+
+**6. Re-read by primary key and diff the columns.** Now that the row is
+identified, `SELECT` it before and after the action and compare field by
+field. This is what answers **"where is it updated"**:
+
+| Observed | Verdict |
+|---|---|
+| Row exists where it did not | INSERT — list the columns it filled |
+| Same key, some columns differ | UPDATE — list each column `before → after` |
+| Row gone | DELETE (hard) |
+| Row present, `deleted_at`/`status` now set | Soft delete — record it as an UPDATE, and raise it: hard versus soft delete is usually an open question |
+
+Because every query is scoped to one primary key, other traffic on a
+shared test environment cannot affect the result.
+
+### Confidence and source — always recorded
+
+| Confidence | When |
+|---|---|
+| `confirmed` | The tracer or a known primary key located the row, and the before/after diff is deterministic |
+| `likely` | Inferred from a table-level count change without isolating a row |
+| `PENDING` | No DB access yet |
+
+Also record **how** it was established (`tracer`, `FK walk from
+endpoints.id`, `row diff by PK`, `app SQL log`). In six months "how do we
+know this?" is the question someone will ask.
+
+### Be honest about what the tracer cannot reach
+
+Some writes leave nothing linked to your row: counters, cache tables,
+cross-tenant aggregates, audit rows with no foreign key. List them once
+per module as **"not reachable by tracer"** rather than concluding the
+action wrote nothing. Absence of evidence is not evidence of absence, and
+writing "no DB effect" when you simply could not see it is worse than
+writing nothing.
+
+Also still invisible to `SELECT` alone: the SQL statements themselves,
+their order inside a transaction, asynchronous writes that land after
+the check, and whether a column was set by this action or by a column
+default.
+
+### Query safety
+
+- Parameterised SELECTs only, inside a read-only transaction.
+- Only the application schema (`DB_SCHEMA`), only your own tracer and
+  the ids it leads to. Never read a row that is not yours.
+- Never `SELECT *` an unbounded table. Search name-like columns first and
+  widen only if the tracer is not found.
 
 ## 5. What to flag while mapping
 

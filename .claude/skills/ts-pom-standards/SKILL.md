@@ -27,7 +27,7 @@ automation/
 │   ├── recorders/network.ts             request/response capture per step
 │   ├── recorders/screens.ts             screenshot + field/attribute dump
 │   ├── recorders/console.ts             console errors and page errors
-│   ├── recorders/dbDiff.ts              read-only snapshot/diff (skipped without DB_TYPE)
+│   ├── recorders/dbTrace.ts             read-only tracer lookup + row diff by PK (skipped without DB_TYPE)
 │   ├── walks/<name>.walk.ts             one replayable walk per SEQ-
 │   └── artifacts/<walk>/                raw recordings (gitignored)
 ├── ui/                         ── PAGE OBJECT MODEL ──
@@ -41,6 +41,8 @@ automation/
 │   └── validators/schemaValidator.ts    ajv-based validation helper
 ├── db/                         ── DATABASE LAYER (read-only) ──
 │   ├── DbClient.ts                      read-only connection, driver by DB_TYPE
+│   ├── catalog.ts                       information_schema: tables, columns, PKs, FKs (cached)
+│   ├── tracer.ts                        find a qa- value's table+column, walk FKs, diff a row by PK
 │   ├── queries/<area>.queries.ts        named, parameterized SELECTs only
 │   └── DbVerifier.ts                    business-level checks (endpointRow, orphanKeys…)
 ├── fixtures/baseTest.ts        exposes pages + clients + db; creates & cleans qa- data
@@ -171,6 +173,8 @@ test('[TC-001] create endpoint in UI and call it with a new key',
 
 | Layer | Job | Never |
 |---|---|---|
+| `db/catalog.ts` | WHAT EXISTS — tables, columns, keys, read from `information_schema` once per run | No assumptions about a schema file |
+| `db/tracer.ts` | WHERE a `qa-` value landed — locate table+column, walk FKs, diff one row by primary key | No whole-table scans |
 | `db/queries/` | WHAT to read — one named SELECT with `$1`-style parameters | No INSERT/UPDATE/DELETE/DDL, no string-built SQL |
 | `db/DbVerifier.ts` | HOW to answer a business question (`endpointRow('qa-tc001-…')`) | No `expect()` |
 | Tests | WHAT to check — `expect(await db.endpointRow(name)).toMatchObject({ tenant: 'qa-tenant-a' })` | No raw SQL |

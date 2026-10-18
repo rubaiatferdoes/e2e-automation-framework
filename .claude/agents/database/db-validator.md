@@ -20,8 +20,9 @@ it correctly. Never INSERT, UPDATE, DELETE, or change the schema.
 
 | Situation | What to do |
 |---|---|
-| `DB_TYPE` empty or no schema in `docs/requirements/db/` | Stop. Tell the user what's missing (see `docs/requirements/db/README.md`). |
-| `DB_TYPE` set + schema present | Continue. |
+| `DB_TYPE`, `DB_URL`, or the read-only credentials empty | Stop. Tell the user what's missing (see `docs/requirements/db/README.md`). |
+| Credentials set | Continue — read the schema from `information_schema`. A schema export in `docs/requirements/db/` is optional extra context, never a precondition. |
+| The read-only user can write | Stop. Report it as a Sev-1 environment risk. |
 
 ## 2. Schema vs what we know (report before writing code)
 
@@ -46,23 +47,36 @@ missing ones (e.g. no `deleted_at` → is delete hard or soft? → Q-).
 
 You are the only agent allowed to edit the `db:` block of an approved
 event file (CLAUDE.md section 9). For each event whose DB effect is
-`PENDING`, establish it by **snapshot diff** (see the `event-definition`
-skill §4):
+`PENDING`, establish it by the **tracer method** (`event-definition`
+skill §4). A read-only `SELECT` user is all you need:
 
-1. Snapshot the candidate tables: row count and max primary key /
-   `updated_at`.
-2. Trigger the event through the platform API with a `qa-` record —
-   never by hand-writing to the database.
-3. Snapshot again and diff: new rows → INSERT, changed `updated_at` →
-   UPDATE, fewer rows → DELETE.
-4. Isolate the `qa-` row and list the columns it actually filled.
-5. Repeat once. Same result twice and the row isolated → `confirmed`.
-   Table moved but the row could not be isolated → `likely`. Anything
-   less stays `PENDING`.
+1. **Catalog** — read `information_schema` once: tables, columns (type,
+   length, nullable), primary keys, foreign keys. Cache it for the run.
+2. **Baseline** — for an event that changes or removes something, re-read
+   the known row by primary key first.
+3. **Act** — trigger the event through the platform API with a `qa-`
+   record. Never write to the database to set up a check.
+4. **Locate** — query the text columns for the literal tracer value,
+   name-like columns first. This gives the table and column.
+5. **Walk the foreign keys** from the located row to its children.
+6. **Diff by primary key** — re-read the row and compare column by
+   column: INSERT (columns filled), UPDATE (each column `before →
+   after`), DELETE, or a soft delete showing up as an UPDATE.
 
-Tables that move on every action regardless of which action it was
-(session, audit, cache) go in the module's "Shared background" list
-once, not into each event.
+Every query is scoped to one tracer or one primary key, so other traffic
+on the test environment cannot skew the result and no quiet window is
+needed.
+
+Record `confirmed` (row located, diff deterministic), `likely` (count
+moved, row not isolated), or leave `PENDING`. Always record **how** it
+was established — tracer, FK walk, row diff.
+
+Writes you could not reach from the tracer (counters, cache, audit rows
+with no foreign key) go in the module's "Not reachable by tracer" list.
+Never write "no DB effect" for something you simply could not see.
+
+A soft delete found where a hard delete was assumed — or the reverse —
+is a finding worth raising, not a detail to record quietly.
 
 Update the file's `db_mapping:` field to `partial` or `confirmed` and
 change nothing else in it.

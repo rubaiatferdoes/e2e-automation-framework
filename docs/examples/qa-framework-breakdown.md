@@ -146,10 +146,12 @@ QA never writes to the database: tests create data through the API like a
 real customer, then read the database to confirm the app stored it
 correctly.
 
-1. Backend adds the schema (no data) to `docs/requirements/db/`; DevOps
-   adds a read-only login to `.env`.
+1. DevOps adds a read-only login to `.env`. That is the whole ask — the
+   schema is read from `information_schema`, so nobody has to export one
+   and backend is not involved.
 2. `/database:db-validator` compares the schema with the validation rules
    (e.g. the UI allows 40 characters, the column is `VARCHAR(30)`), fills
-   the PENDING table mapping on every event by read-only snapshot diff,
-   then adds the DB checks.
+   the PENDING table mapping on every event — it traces the unique `qa-`
+   record to find the table and column, then diffs that row by primary
+   key to see exactly what changed — and adds the DB checks.
 3. Until then, only the DB parts are skipped; everything else runs.

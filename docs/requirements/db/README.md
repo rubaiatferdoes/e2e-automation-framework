@@ -1,97 +1,119 @@
-# docs/requirements/db — database schema goes here
+# docs/requirements/db — database access and schema
 
-When the database is decided, add the files below and the `.env`
-settings, then run `/database:db-validator`.
+To switch the database checks on you need **one thing**: a read-only
+database user on the test environment, in `.env`. Then run
+`/database:db-validator`.
 
-## What the database access is used for
+Everything in this folder is optional extra context.
+
+## What read-only access is used for
 
 Three jobs, and only the first is obvious:
 
-| # | Job | Why it needs the DB |
+| # | Job | What it needs |
 |---|---|---|
-| 1 | **Check the app stored things correctly** | Tests create data through the API like a real customer, then read the database to confirm the row exists, belongs to the right tenant, and holds a hashed key — not a plain one |
-| 2 | **Fill the `PENDING` mappings in the event definitions** | Discovery can see that clicking "Generate" fires `POST /api/endpoints/{id}/keys`, but not which table that handler wrote to. Until this runs, every event's DB block reads `PENDING` |
-| 3 | **Compare the schema with the validation rules** | The UI stops at 40 characters, the API accepted 256, the column is `VARCHAR(30)` — three different limits in one system is a bug waiting to reach production |
+| 1 | **Check the app stored things correctly** — row exists, right tenant, key hashed not plain | `SELECT` |
+| 2 | **Fill the `PENDING` table mappings in the event definitions** — which table each UI action writes to, and which columns it updates | `SELECT` |
+| 3 | **Compare the schema with the validation rules** — the UI stops at 40 characters, the API accepted 256, the column is `VARCHAR(30)` | `SELECT` on `information_schema` |
 
-Job 2 is why a read-only user matters even before anyone writes a DB
-test: it is what completes the picture of what each UI action does.
+Job 2 is why this matters even before anyone writes a DB test: it is what
+completes the picture of what each click actually does.
 
 **QA never writes to the database.** Only the application writes. If the
 read-only user turns out to be able to write, the validator stops and
 reports it as a Sev-1 environment risk.
 
-## 1. Files to add here
-
-| File | What | Who gives it |
-|---|---|---|
-| `schema.sql` | Schema export — tables, columns, types, keys, constraints (no data!) | Backend / DBA (`pg_dump --schema-only`, `mysqldump --no-data`, or SSMS "Script as CREATE") |
-| `erd.png` (optional) | Diagram of tables and relationships | Backend / DBA |
-| `notes.md` (recommended) | Anything not visible in the schema | Backend |
-
-**Never** add a data dump — the schema only. No customer rows.
-
-### What to put in `notes.md`
-
-This is the file that saves the most time, because it narrows which
-tables to look at. Worth asking backend for:
-
-- Which table holds tenants, and how a row is linked to one
-- Soft delete or hard delete (is there a `deleted_at`?)
-- How API keys are hashed, and in which column
-- Tables that change on **every** request — session, audit, cache, job
-  queues. These are noise for job 2 and get listed once instead of being
-  blamed on each event
-- Anything written asynchronously (a job, a trigger, a queue), because a
-  snapshot taken straight after the click will miss it
-
-## 2. Settings in `.env` (project root)
+## 1. Settings in `.env` (project root)
 
 ```
 DB_TYPE=postgres            # postgres | mysql | mssql
 DB_URL=<test environment DB host:port/dbname>
 DB_READONLY_USER=<user with SELECT rights only>
 DB_READONLY_PASSWORD=<password>
+DB_SCHEMA=                  # empty = driver default (public / dbo)
 ```
 
 Ask DevOps for a **read-only** user on the **test environment**
-database, with `SELECT` on the application tables. No `INSERT`,
-`UPDATE`, `DELETE`, or DDL — the framework enforces this three times
-over (user rights, read-only transaction, and a check that every
-statement starts with `SELECT`), but the grant is the real protection.
+database, with `SELECT` on the application tables and on
+`information_schema`. No `INSERT`, `UPDATE`, `DELETE`, or DDL. The
+framework blocks writes three times over — user rights, a read-only
+transaction, and a check that every statement starts with `SELECT` — but
+the grant is the real protection.
 
-## 3. For job 2, a quiet environment helps
+That is the whole ask. No config flags, no logging to enable, nothing
+from the backend team.
 
-Filling the event mappings works by **snapshot diff**: count rows before
-the action, perform it with a `qa-` record, count again, and see what
-moved. That is approximate — if someone else is clicking around the test
-environment at the same time, the same tables move for unrelated
-reasons.
+## 2. How the table mapping works — and why it is safe
 
-So, when you can:
+Every record the framework creates has a unique name like
+`qa-seq002-lz3k9a-x7f1`. That string exists nowhere else in the
+database, so it works as a tracer:
 
-- run the mapping when nobody else is using the test environment;
-- expect the agent to repeat each action twice and record a confidence
-  (`confirmed` when the result matched twice and the `qa-` row was
-  isolated, `likely` when the table moved but the row could not be);
-- treat `likely` rows as a hint, not a fact.
+1. Read `information_schema` once — tables, columns, primary keys,
+   foreign keys. **This is where the schema comes from**, so nobody
+   needs to export one.
+2. Perform the action with the tracer record.
+3. Search the text columns for that literal value → the table and column
+   it landed in.
+4. Follow the foreign keys outward to find the child rows (the key row,
+   the settings row).
+5. Re-read those rows **by primary key** before and after → exactly which
+   columns changed, and from what to what.
 
-Anything less certain than that stays `PENDING`. A guessed table name is
-worse than no table name, because the next person will trust it.
+Because every query is scoped to one tracer or one primary key:
 
-## 4. Tell the framework the DB is decided
+| Concern | Why it's fine |
+|---|---|
+| Disturbing other people's testing | Nothing is locked. Readers don't block writers, and the queries run in a read-only transaction |
+| Load on the database | `information_schema` reads are metadata only; row lookups are by key |
+| Reading real customer data | Only your own tracer and the ids it leads to are ever queried |
+| Other traffic skewing results | Impossible — nothing is counted globally, so someone else's click cannot affect your row |
+
+No quiet maintenance window is needed.
+
+## 3. Optional files you can add here
+
+Not required — the catalog in step 2 gives the framework the schema. But
+these make the output better:
+
+| File | What | Why it helps |
+|---|---|---|
+| `notes.md` | Soft vs hard delete · how keys are hashed · which table holds tenants · tables that change on every request (session, audit, cache) · anything written asynchronously by a job or trigger | Narrows the search and explains the rows the tracer cannot reach |
+| `erd.png` | Diagram of tables and relationships | Faster to read than FK metadata |
+| `schema.sql` | Schema export, no data | Useful for review in a PR; the framework does not depend on it |
+
+**Never** add a data dump. Schema only, no customer rows.
+
+## 4. What this method cannot see
+
+Honest limits, so nobody over-trusts the output:
+
+- The SQL statements themselves, or their order inside a transaction
+- Writes with no link back to your row — counters, cache tables, audit
+  rows without a foreign key. These are listed as **"not reachable by
+  tracer"**, never as "no DB effect"
+- Asynchronous writes that land after the check
+- Whether a column was set by this action or by a database default
+
+If you later want statement-level recording, the cheapest route is not
+the database at all: ask backend to switch on SQL query logging on the
+test deployment (one environment variable). Then each event's `db:`
+block records `source: app SQL log` instead of `source: tracer`.
+
+## 5. Tell the framework the DB is decided
 
 Update the "Database type" row in `CLAUDE.md` (scope table) from
 "Unknown — read-only access is coming" to the chosen type.
 
-## 5. Until all of this exists
+## 6. Until then
 
 Nothing is blocked. `DB_TYPE` empty means:
 
-- event definitions keep `db: PENDING` and carry a `Q-`;
+- event definitions keep `db: PENDING` and carry a `Q-`
 - DB steps inside API/E2E tests skip **only that step**, so the rest of
-  the test still runs;
-- standalone `tests/db/` specs skip whole;
-- the test plan marks the DB column `Later` with the reason.
+  the test still runs
+- standalone `tests/db/` specs skip whole
+- the test plan marks the DB column `Later`, with the reason
 
 That is the intended state right now, not a failure — see the scope
 table in `CLAUDE.md`.

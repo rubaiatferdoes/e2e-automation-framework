@@ -74,7 +74,7 @@ before moving to the next step.**
 | 7b | `/automation-api:api-test-reviewer` | Reviews, fixes, and stabilizes API tests | Review report |
 | 7c | `/automation-ui:playwright-generator` | Writes UI + E2E tests (TypeScript, POM) | `automation/ui/`, `automation/tests/ui/`, `automation/tests/e2e/` |
 | 7d | `/automation-ui:playwright-reviewer` | Reviews, fixes, and stabilizes UI tests | Review report |
-| 8 | `/database:db-validator` | DB checks — **only after the DB type + schema are in `docs/requirements/db/`** | `automation/db/`, schema check, filled event DB mappings |
+| 8 | `/database:db-validator` | DB checks — **only after the read-only DB user is in `.env`** | `automation/db/`, schema check, filled event DB mappings |
 | 9 | `/execution:test-executor` | Runs everything, collects evidence | `docs/reports/execution-*.md` |
 | 10 | `/healing:investigate-failures` | Diagnoses every failure: broken test or broken product | `docs/reports/investigation-*.md`, `docs/bugs/` |
 | 11 | `/reporting:quality-reporter` | Release report for managers | `docs/reports/quality-report-*.md` |
