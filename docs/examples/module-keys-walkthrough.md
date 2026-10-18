@@ -45,7 +45,7 @@ continues numbering after the endpoints module.
 Analyzed: module keys (PRD §4, mockup-05, client-notes-2026-10-15)
 Skipped:  PRD §2–3 (endpoints — already approved), §5 (docs)
 
-Features: 4 (F-004..F-007)   Rules: 5 (BR-007..BR-011)   Gaps: 5   Questions: 4
+Features: 4 (F-004..F-007)   Rules: 5 (BR-007..BR-011)   Gaps: 5   Questions: 5
 
 Top gaps:
  [MISSING]  How fast must a revoked key stop working? (flow step 5)
@@ -78,11 +78,12 @@ Needed first: Q-005 — revocation delay (can't write the "key is dead" test wit
 | Q-006 | Is "Copy key" on the list a mistake? PRD says shown once | BR-009 |
 | Q-007 | Cross-tenant key use: 403 or 404? | F-007, E2E-04 |
 | Q-008 | Do keys expire? Client said "maybe 90 days" | F-006 |
+| Q-009 | Is the key stored hashed, not plain text? | BR-009 |
 
 **You check:** every rule cites PRD §4 · the conflict is a question, not
 a guess · module index shows "keys: Analyzed — awaiting approval".
 
-**Then:** send Q-005..Q-008 to product, approve the analysis. Product
+**Then:** send Q-005..Q-009 to product, approve the analysis. Product
 answers Q-005 ("within 60 seconds") → add it to `docs/requirements/answers.md`
 → `/change:impact-analysis answers` → Q-005 closed, new rule
 **BR-012: Revoked key rejected within 60 s**.
@@ -147,6 +148,9 @@ status: draft
 **You check:** 8 cases, not 30 · every rule covered · P0 for flow steps
 3, 4, 5 · boundaries merged into one data-driven case (TC-013).
 
+**Then:** approve `docs/test-cases/keys/` — the data factory only fills
+data into APPROVED cases (CLAUDE.md "Draft, revise, approve").
+
 ---
 
 ## Step 3 — Test data for the keys module
@@ -170,7 +174,9 @@ Resolves: `module:keys → TC-012..TC-019`
 
 **`test-data/security-data.json`** (fake keys for TC-018)
 ```json
-{ "id": "DAT-030", "field": "x-api-key", "value": "not-a-real-key", "expected": "401", "rule": "BR-011", "used_by": ["TC-018"] }
+[
+  { "id": "DAT-030", "field": "x-api-key", "value": "not-a-real-key", "expected": "401", "rule": "BR-011", "used_by": ["TC-018"] }
+]
 ```
 
 `docs/test-cases/keys/TC-013-key-name-length-limits.md` now has
@@ -230,6 +236,10 @@ test('[TC-014] revoked key rejected within 60 s',
 - No selectors or raw HTTP calls in the test — those live in the client.
 - `qaEndpoint` is a fixture: it creates `qa-tc014-lz3k9a-w2-x7f1` before the
   test and deletes it after, even if the test fails.
+- `platform.createApiKeyFor()` is fixture-backed too: it registers the
+  key with `baseTest`'s cleanup tracking the moment it's created, so
+  teardown still revokes it even if this test fails before its own
+  revoke step (Step 2 above).
 - It polls up to the agreed 60 seconds — no fixed sleep.
 
 **Summary**

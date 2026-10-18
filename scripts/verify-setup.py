@@ -72,17 +72,21 @@ for cmd_md in sorted(CLAUDE_DIR.glob("commands/**/*.md")):
     rel = cmd_md.relative_to(CLAUDE_DIR / "commands").with_suffix("")
     slash = "/" + ":".join(rel.parts)
     agent = fm.get("agent")
-    used_skill = re.search(r"Use the ([\w-]+) skill", body)
+    skill = fm.get("skill")
+    if not skill:
+        # Legacy fallback for commands without a `skill:` frontmatter field.
+        used_skill = re.search(r"Use the ([\w-]+) skill", body)
+        skill = used_skill.group(1) if used_skill else None
     if agent:
         if fm.get("context") != "fork":
             problems.append(f"{slash}: has 'agent' but no 'context: fork' (agent is ignored)")
         if agent not in agents:
             problems.append(f"{slash}: agent '{agent}' not found")
         commands[slash] = {"agent": agent, "skills": agents.get(agent, {}).get("skills", [])}
-    elif used_skill:
-        if used_skill.group(1) not in skills:
-            problems.append(f"{slash}: uses unknown skill '{used_skill.group(1)}'")
-        commands[slash] = {"skill": used_skill.group(1)}
+    elif skill:
+        if skill not in skills:
+            problems.append(f"{slash}: uses unknown skill '{skill}'")
+        commands[slash] = {"skill": skill}
     else:
         problems.append(f"{slash}: neither an agent nor a skill is wired")
 

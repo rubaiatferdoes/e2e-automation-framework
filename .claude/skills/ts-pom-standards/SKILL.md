@@ -12,7 +12,7 @@ same report.
 
 ```
 automation/
-├── playwright.config.ts        projects: api, ui, e2e
+├── playwright.config.ts        projects: api, db, ui, e2e
 ├── tsconfig.json               "strict": true
 ├── package.json                scripts below
 ├── eslint.config.mjs           ESLint flat config (typescript-eslint recommended)

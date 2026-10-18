@@ -1,6 +1,7 @@
 ---
 description: Step 1 — Requirement analysis (skill) on PRD/FRD/mockups/client notes — runs in this conversation so you can discuss the gaps
 argument-hint: [all | module:keys | "API keys" | flow:3 | path, default docs/requirements/]
+skill: requirement-analysis
 ---
 
 Use the requirement-analysis skill on: $ARGUMENTS

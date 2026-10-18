@@ -85,7 +85,7 @@ of them:
 | Range | `TC-010..TC-015` | TC-010 to TC-015 inclusive |
 | Feature / rule | `F-003` or `BR-007` | Every test case whose Req IDs include it |
 | Priority | `P0` | Every test case with that priority |
-| Type / layer | `E2E`, `Security`, `API`, `UI`, `DB` | Every test case of that type or layer |
+| Type / layer | `E2E`, `Security`, `API`, `UI`, `DB`, `Docs` | Every test case of that type or layer |
 | Test case folder | `docs/test-cases/keys/` | Every test case file in that folder |
 
 Selections combine with AND: `F-003 P0` = P0 cases of feature F-003.

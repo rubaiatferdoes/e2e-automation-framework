@@ -57,7 +57,10 @@ Call the endpoint and check:
 sends hundreds of valid and invalid requests automatically:
 
 ```bash
-st run openapi.json --url "$TEST_ENV_API_URL" -H "x-api-key: $QA_API_KEY" --checks all
+# Create a throwaway qa- key first (via the Platform API, same as a test
+# fixture would) — there's no static API key in .env; keys are always
+# created at runtime, never stored as a secret.
+st run openapi.json --url "$TEST_ENV_API_URL" -H "x-api-key: <qa- key created above>" --checks all
 ```
 
 Any 5xx or response that doesn't match the spec = a finding.
