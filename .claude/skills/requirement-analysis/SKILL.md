@@ -1,12 +1,31 @@
 ---
 name: requirement-analysis
-description: Analyze PRD/FRD documents, mockup images, and client notes for the API endpoint builder product. Produces features (F-), business rules (BR-), E2E flow coverage, missed scenarios, a market-standard comparison, and questions for product (Q-), most important first. Use when asked to analyze requirements, find test scope, coverage areas, gaps, or missed scenarios.
+description: Analyze PRD/FRD documents, mockup images, and client notes for the API endpoint builder product, when such documents exist. Produces features (F-), business rules (BR-), E2E flow coverage, missed scenarios, a market-standard comparison, and questions for product (Q-), most important first. Use when asked to analyze requirement documents or compare them against what the application actually does.
 ---
 
-# Requirement Analysis
+# Requirement Analysis — optional, and a comparison
 
 **Goal:** turn raw requirements into a clear, testable list — and find
 what is missing BEFORE anyone writes test cases.
+
+**This step is optional.** The application already exists, and discovery
+(`/discovery:explore-app`) is what tells us how it behaves. This skill
+covers the other half: what it was *supposed* to do. Run it when
+`docs/requirements/` actually holds documents; if the folder is empty,
+say so and stop — discovery plus the lead's confirmation is then the only
+source of expected results, and the test plan must say so.
+
+Where both exist, the pair is worth more than either alone:
+
+| Discovery says | Requirements say | Meaning |
+|---|---|---|
+| The app does X | X | Confirmed — a safe expected result |
+| The app does X | Y | **Conflict** — suspected bug or an out-of-date document. Raise a `Q-`, never pick a side |
+| The app does X | nothing | Undocumented behaviour — test it as found, raise a `Q-` to confirm it is wanted |
+| — | Z | Not built, not found, or missed by the walk — keep it, mark `BLOCKED — not observed` |
+
+If discovery has already run, note every row that is not "Confirmed" in
+the summary: those are the findings that earn this step.
 
 **Input:** everything under `docs/requirements/` (or the path given): PRD, FRD,
 user stories, mockup images, meeting notes, emails.
@@ -95,5 +114,8 @@ every ID. Re-run this skill from scratch only for a brand-new baseline
 - In chat, show only a short summary: counts, top 5 gaps, and the
   questions needed before test cases can be written. Full detail goes
   in the file.
+- Never treat a document as proof that the app behaves that way, or the
+  app as proof that the document is wrong. Both are evidence; the lead
+  decides.
 - Finish with: "Ready for review. After approval, run
   `/test-design:test-planner`."

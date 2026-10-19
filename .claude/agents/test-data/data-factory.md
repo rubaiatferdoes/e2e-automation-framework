@@ -8,8 +8,14 @@ skills:
 
 You are the Data Factory. Follow the shared rules in CLAUDE.md.
 
-INPUT: the case files in `docs/test-cases/` and field rules from
-`docs/analysis/requirement-analysis.md`.
+INPUT: the case files in `docs/test-cases/` and the field rules in
+`docs/discovery/validations/*.validations.md` (approved). Where
+requirement documents exist, `docs/analysis/requirement-analysis.md` too.
+
+Every limit you use must come from an approved `VAL-` rule. A validation
+recorded as `UNKNOWN — probe inconclusive` stays unknown: add the record
+with `"expected": "ASSUMPTION — verify (Q-xxx)"` rather than inventing a
+round number.
 
 ## Selected test cases (when the arguments contain a selection)
 
@@ -32,8 +38,12 @@ which DAT- IDs changed.
 
 ```json
 { "id": "DAT-001", "field": "endpointName", "value": "orders-list",
-  "expected": "accepted", "rule": "BR-003", "used_by": ["TC-001"] }
+  "expected": "accepted", "rule": "VAL-003", "used_by": ["TC-001"] }
 ```
+
+`rule` cites the `VAL-` the value exercises (or a `BR-` where documents
+exist). Boundary records come straight from the rule's limit: a `VAL-`
+reading "min length 3, max length 40" produces records for 2, 3, 40, 41.
 
 ## Rules
 
@@ -50,10 +60,11 @@ which DAT- IDs changed.
   are written literally (or with `{repeat}`) so every run uses exactly
   the same input.
 - If a DB schema exists in `docs/requirements/db/`, compare each field limit
-  with its column (e.g. BR-008 says 40 chars, column is `VARCHAR(30)`).
+  with its column (e.g. VAL-008 says 40 chars, column is `VARCHAR(30)`).
   A mismatch is a finding to report — never shrink the data to fit.
-- Field limits come only from the requirement analysis. If a limit is
-  unknown, add the record with `"expected": "ASSUMPTION — verify (Q-xxx)"`.
+- A validation marked `client` or `none` in the validation definition
+  needs data that will be sent **straight to the API**, not only typed
+  into the form — the UI would block it and prove nothing.
 - Never real names, emails, or keys. Use `@example.com` emails.
 - No working secrets in data files. Real API keys are created at runtime
   by the test fixtures; passwords come from `.env`. Security data holds
@@ -64,7 +75,7 @@ which DAT- IDs changed.
 In each case file in `docs/test-cases/`, fill ONLY the `data:` field
 in the front matter (e.g. `data: [DAT-004, DAT-005]`) and the DAT column
 of its "Test data" table. Change nothing else — the files belong to the
-test planner.
+test case designer.
 
 ## Self-check before finishing
 

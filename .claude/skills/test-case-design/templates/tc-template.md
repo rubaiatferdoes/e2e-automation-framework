@@ -4,7 +4,7 @@ title: Revoked key rejected within 60 s
 module: keys
 flow: [5]
 e2e: E2E-03
-requirements: [F-006, BR-012]
+requirements: [SEQ-002, VAL-012]   # SEQ-/VAL- from discovery, plus F-/BR- when documents exist
 priority: P0
 type: E2E
 layer: [API]

@@ -21,6 +21,15 @@ automation/
 │                               OPTIONAL ones (revocation delay, cross-tenant status,
 │                               DB_*) may be empty
 ├── types/                      Endpoint, ApiKey, ErrorResponse ...
+├── discovery/                  ── DISCOVERY HARNESS (learn the app) ──
+│   ├── explore.ts                       CLI: run one walk, write artifacts
+│   ├── session.ts                       login per tenant, reusable storageState
+│   ├── recorders/network.ts             request/response capture per step
+│   ├── recorders/screens.ts             screenshot + field/attribute dump
+│   ├── recorders/console.ts             console errors and page errors
+│   ├── recorders/dbTrace.ts             read-only tracer lookup + row diff by PK (skipped without DB_TYPE)
+│   ├── walks/<name>.walk.ts             one replayable walk per SEQ-
+│   └── artifacts/<walk>/                raw recordings (gitignored)
 ├── ui/                         ── PAGE OBJECT MODEL ──
 │   ├── locators/<feature>.locators.ts   selector strings ONLY
 │   └── pages/<Feature>Page.ts           one business action per method
@@ -32,6 +41,8 @@ automation/
 │   └── validators/schemaValidator.ts    ajv-based validation helper
 ├── db/                         ── DATABASE LAYER (read-only) ──
 │   ├── DbClient.ts                      read-only connection, driver by DB_TYPE
+│   ├── catalog.ts                       information_schema: tables, columns, PKs, FKs (cached)
+│   ├── tracer.ts                        find a qa- value's table+column, walk FKs, diff a row by PK
 │   ├── queries/<area>.queries.ts        named, parameterized SELECTs only
 │   └── DbVerifier.ts                    business-level checks (endpointRow, orphanKeys…)
 ├── fixtures/baseTest.ts        exposes pages + clients + db; creates & cleans qa- data
@@ -42,18 +53,50 @@ automation/
     ├── api/<feature>.api.spec.ts
     ├── ui/<feature>.ui.spec.ts
     ├── e2e/<flow>.e2e.spec.ts
-    └── db/<area>.db.spec.ts         standalone integrity checks (@db)
+    ├── db/<area>.db.spec.ts         standalone integrity checks (@db) — DB_ACCESS=readonly only
+    └── persistence/<area>.persistence.spec.ts   black-box storage probes (@persistence) — DB_ACCESS=none
 ```
 
-`package.json` scripts: `test`, `test:api`, `test:ui`, `test:e2e`, `test:db` (`--project=db`),
-`test:headed`, `typecheck` (`tsc --noEmit`), `lint`, `report`.
+`package.json` scripts: `test`, `test:api`, `test:ui`, `test:e2e`, `test:db` (`--project=db`), `test:persistence` (`--project=persistence`),
+`test:headed`, `discover` (`tsx discovery/explore.ts`), `typecheck` (`tsc --noEmit`),
+`lint`, `report`.
+
+### The discovery harness
+
+Discovery runs before any test exists, so whichever agent walks the app
+first creates `automation/` and builds `discovery/` inside it. It shares
+`config/env.ts`, `types/`, and the login helper with the tests — one
+project, one source of truth for URLs and credentials.
+
+A walk file is the sequence as code, and the UI generator reuses it as
+the skeleton of the real test:
+
+```ts
+// discovery/walks/generate-api-key.walk.ts
+export const walk: Walk = {
+  id: 'SEQ-002',
+  title: 'Generate an API key for an endpoint',
+  tenant: 'a',
+  steps: [
+    { screen: 'endpoint-list',   do: (p) => p.goto('/endpoints') },
+    { screen: 'endpoint-detail', do: (p) => p.getByRole('link', { name: qaEndpoint }).click() },
+    { screen: 'generate-key',    do: (p) => p.getByRole('button', { name: /generate key/i }).click() },
+  ],
+};
+```
+
+Each step writes `artifacts/<walk>/screens/<SEQ>-<step>-<screen>.png`,
+the DOM field dump, and the network slice for that step — so every
+request can be traced back to the click that caused it.
+`artifacts/` is gitignored; screenshots that become evidence are copied
+into `docs/discovery/screens/`.
 
 ### First-time setup (whoever creates `automation/` runs this once)
 
 ```bash
 cd automation
 npm init -y
-npm i -D @playwright/test typescript @types/node dotenv ajv ajv-formats @faker-js/faker \
+npm i -D @playwright/test typescript tsx @types/node dotenv ajv ajv-formats @faker-js/faker \
   eslint typescript-eslint
 npx playwright install chromium
 ```
@@ -131,6 +174,8 @@ test('[TC-001] create endpoint in UI and call it with a new key',
 
 | Layer | Job | Never |
 |---|---|---|
+| `db/catalog.ts` | WHAT EXISTS — tables, columns, keys, read from `information_schema` once per run | No assumptions about a schema file |
+| `db/tracer.ts` | WHERE a `qa-` value landed — locate table+column, walk FKs, diff one row by primary key | No whole-table scans |
 | `db/queries/` | WHAT to read — one named SELECT with `$1`-style parameters | No INSERT/UPDATE/DELETE/DDL, no string-built SQL |
 | `db/DbVerifier.ts` | HOW to answer a business question (`endpointRow('qa-tc001-…')`) | No `expect()` |
 | Tests | WHAT to check — `expect(await db.endpointRow(name)).toMatchObject({ tenant: 'qa-tenant-a' })` | No raw SQL |
@@ -159,6 +204,20 @@ test('[TC-001] create endpoint stores it for the right tenant',
     });
   });
 ```
+
+### Persistence layer — storage checks with no database access
+
+Used when `DB_ACCESS=none`. Same three-layer rule as everywhere, API only:
+
+| Layer | Job | Never |
+|---|---|---|
+| `persistence/probes.ts` | HOW to run one probe: `roundTrip`, `cascade`, `recreateAfterDelete`, `exposureSweep`, `idempotency` — each returns facts | No `expect()` |
+| `persistence/helpers.ts` | Build a parent with children, track them for cleanup | No assertions, no raw `request.*` in tests |
+| Tests | WHAT to check, from the test case | No selectors, no raw HTTP |
+
+The key rule: **assert on a fresh `GET`, never on the write's echo.**
+When `DB_ACCESS=readonly`, `tests/db/` covers the same ground exactly and
+the probes are optional extras.
 
 ## 3. TypeScript rules
 
@@ -205,23 +264,33 @@ test('[TC-001] create endpoint stores it for the right tenant',
 
 ## 5. Selectors (UI)
 
-Verify in the real DOM first. Priority: `data-testid` → id → role/label
-(`getByRole`, `getByLabel`) → stable class → text (last resort).
+Take them from the discovery artifacts — the DOM dump recorded while
+walking the real app, so they are already verified. If one is missing,
+check the live page, then report it so the event definition gains it.
+Never guess. Priority: `data-testid` → id → role/label (`getByRole`,
+`getByLabel`) → stable class → text (last resort).
+
+When a selector breaks later, the healer updates it in ONE place
+(`ui/locators/`) and records the change so discovery stays true.
 
 ## 6. Config (`playwright.config.ts`)
 
-- Projects: `api` (`tests/api`, no browser), `db` (`tests/db`, no browser),
+- Projects: `api` (`tests/api`, no browser), `db` (`tests/db`, no browser), `persistence` (`tests/persistence`, no browser),
   `ui` and `e2e` (Desktop Chrome; firefox/webkit present but commented out).
   Each script runs one project: `test:api` → `--project=api`, and so on.
 - timeout 60s (key-dead tests raise their own — see section 4), expect 10s, `fullyParallel: true`, `retries: process.env.CI ? 2 : 0`.
 - Reporter: list + HTML to `reports/html` (`open: 'never'`).
-- Screenshot + trace on failure → `reports/artifacts`.
+- Screenshot, trace, **and video** on failure → `reports/artifacts`
+  (`screenshot: 'only-on-failure'`, `trace: 'retain-on-failure'`,
+  `video: 'retain-on-failure'`). The healer diagnoses from these: a
+  failure with no video is one somebody has to reproduce by hand.
 - `baseURL` from ENV; `ignoreHTTPSErrors: true` for the test environment.
 
 ## 7. Commands
 
 | Goal | Command (in `automation/`) |
 |---|---|
+| Walk the app (discovery) | `npm run discover -- walks/<name>.walk.ts` |
 | All tests | `npm test` |
 | API only / UI only / E2E only | `npm run test:api` / `test:ui` / `test:e2e` |
 | Smoke only | `npx playwright test --grep @smoke` |
@@ -230,6 +299,7 @@ Verify in the real DOM first. Priority: `data-testid` → id → role/label
 | A feature / a priority | `npx playwright test --grep @F-003` / `--grep @P0` |
 | A module / a flow step | `npx playwright test --grep @mod-keys` / `--grep @flow-3` |
 | DB integrity checks only (`tests/db/`) | `npm run test:db` |
+| Black-box storage probes (`tests/persistence/`) | `npm run test:persistence` |
 | Everything that touches the DB (integrity + API/E2E tests with DB steps) | `npx playwright test --grep @db` |
 | Both (AND) | `npx playwright test --grep "(?=.*@F-003)(?=.*@P0)"` |
 | Stability gate | `npx playwright test --repeat-each=3` |

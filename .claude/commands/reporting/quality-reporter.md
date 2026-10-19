@@ -1,5 +1,5 @@
 ---
-description: Step 7 — Quality Reporter agent — release verdict, coverage traceability, defect status, risks
+description: Step 11 — Quality Reporter agent — release verdict, coverage traceability, defect status, risks
 argument-hint: [path to results, e.g. docs/ + latest execution results]
 context: fork
 agent: quality-reporter

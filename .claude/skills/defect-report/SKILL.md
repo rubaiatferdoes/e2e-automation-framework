@@ -1,6 +1,6 @@
 ---
 name: defect-report
-description: Write a clear, reproducible bug report (BUG-) with severity, priority, steps, expected vs actual, evidence, and a link to the test case and requirement. Use when a test finds an application bug, or when asked to log, write, or file a defect.
+description: Draft a clear, reproducible bug report (BUG-) for the lead to approve — severity, priority, steps, expected vs actual, evidence, and a link to the test case and requirement. Use when a test finds an application bug, or when asked to log, write, or file a defect.
 ---
 
 # Defect Report
@@ -11,12 +11,20 @@ the first try, without asking QA anything.
 **Output:** one file per bug: `docs/bugs/BUG-<nnn>-<short-name>.md`
 (next free number), using [templates/bug-template.md](templates/bug-template.md).
 
+**The report is a proposal.** It is written with `Status: PROPOSED` and
+handed to the lead with its evidence; the lead decides whether it is
+filed. Never announce a bug as filed, and never close one.
+
 ## Before writing
 
 - [ ] Reproduced at least twice on the test environment
 - [ ] It's an **application bug** — not a script, data, or environment
-      problem (see the classification in `test-executor`)
+      problem, and not a stale expectation (see the triage tree in
+      `failure-healing`)
 - [ ] Searched `docs/bugs/` — not already reported
+- [ ] If it came from an automated run, the trace, video, and screenshot
+      are attached. Automation's advantage over a manual report is the
+      evidence — don't throw it away
 
 ## Severity vs priority (they are different)
 

@@ -1,86 +1,166 @@
 # QA Agent Framework — Command Breakdown
 
-Oct 17, 2026
+Oct 18, 2026
 
-The QA framework for our API endpoint builder is ready: a QA engineer types a command, a specialist AI agent does that step, and a person approves the result before the next step. It covers the full E2E flow in TypeScript, works one module at a time, and handles product changes without redoing work. All 13 commands are verified.
+The QA framework for our API endpoint builder works from the running
+application, not from documents. You give it a URL and a test login; it
+travels the app, records what it finds, and builds the tests from that.
+A QA engineer types a command, a specialist AI agent does that step, and
+a person approves the result before the next step. All 18 commands are
+verified.
 
 ## At a glance
 
-Each step hands a file to the next, and a person approves it first:
-
 ```
- 0 Env readiness ──▶ 1 Requirements ──▶ 2 Test planning ──▶ 3 Test data
-                                                                 │
- ┌───────────────────────────────────────────────────────────────┘
- ▼
- 4 Automation ──▶ 5 DB checks* ──▶ 6 Execution ──▶ 7 Report
-   (API + UI       (needs DB         (results        (release
-   generators,      type)             and bugs)       verdict)
-   then reviewers)
+ 0 Readiness ──▶ 1 Explore ──▶ 2 Events ──▶ 3 Validations
+                     (travel the app, record what it does)
+                                                 │
+        ┌────────────────────────────────────────┘
+        ▼   ← you approve here: observation becomes expectation
+ 4 Test plan ──▶ 5 Test cases ──▶ 6 Test data
+                                       │
+        ┌──────────────────────────────┘
+        ▼
+ 7 Automation ──▶ 8 DB checks* ──▶ 9 Execution ──▶ 10 Investigate ──▶ 11 Report
+   (API + UI        (needs DB        (run, collect    (broken test →     (release
+   generators,       access)          evidence)        a fix you         verdict)
+   then reviewers)                                     approve;
+                                                       broken product
+                                                       → a bug)
 
- Every arrow is a review gate.  * waiting on a product decision
+ Every arrow is a review gate.  * needs read-only DB access (DB_ACCESS=readonly); otherwise @persistence probes
 ```
 
-Step 5 waits until the database type is chosen. Product updates can enter at any point through `/change:impact-analysis`.
+Requirement documents are **optional** and plug in beside step 1: when
+they exist, the test planner compares them against what the app actually
+does, and every disagreement becomes a question or a suspected bug.
+Product updates can enter at any point through `/change:impact-analysis`.
+
+## The idea that shapes everything
+
+The application is the only thing that can tell us how it behaves — and
+it is also the thing we are testing. So:
+
+> **What the app does is an observation, not the truth.**
+
+Discovery records; a person confirms. Until that approval, nothing is an
+expected result. Anything that looks wrong — a missing validation, a
+silent failure, a rule the browser enforces and the server doesn't — is
+raised as a finding instead of being written down as correct behaviour.
+
+Without that rule, a framework that learns from the app would simply
+certify the app's own bugs as correct.
 
 ## Commands
 
 Run them in order from the framework folder; each one stops for approval.
 
-| Step | Command | What it does | Output (location) |
+| Step | Command | What it does | Output |
 | --- | --- | --- | --- |
-| 0 | `/setup:env-readiness` | Checks the test environment is ready | READY / NOT READY table (in chat) |
-| 1 | `/requirements:analyze-requirements` | Finds features, rules, gaps and questions — most important first | `docs/analysis/requirement-analysis.md` |
-| 2 | `/test-design:test-planner` | Decides the scope, writes test cases | `docs/test-plan.md`, `docs/test-cases/<module>/TC-*.md` (one file per case) |
-| 3 | `/test-data:data-factory` | Creates dummy data | `test-data/` |
-| 4 | `/automation-api:api-test-generator` then `api-test-reviewer` | Writes and stabilizes API tests | `automation/api/`, `automation/tests/api/` |
-| 4 | `/automation-ui:playwright-generator` then `playwright-reviewer` | Writes and stabilizes UI + E2E tests | `automation/ui/`, `automation/tests/ui/`, `automation/tests/e2e/` |
-| 5 | `/database:db-validator` | DB checks (after the DB type and schema are ready) | `automation/db/`, `docs/analysis/schema-check.md` |
-| 6 | `/execution:test-executor` | Runs tests, sorts failures, files bugs | `docs/reports/`, `docs/bugs/` |
-| 7 | `/reporting:quality-reporter` | Release verdict for managers | `docs/reports/` |
-| Any | `/change:impact-analysis` | Applies a product change to only what it affects | `docs/changes/` |
+| 0 | `/setup:env-readiness` | App reachable, logins work, tools installed | READY / NOT READY (in chat) |
+| 1 | `/discovery:explore-app` | Travels a workflow, screenshots every screen, records the traffic | `docs/discovery/sequences/` |
+| 2 | `/discovery:event-definition` | Each click/load → the API calls it fires → the DB tables it touches | `docs/discovery/events/` |
+| 3 | `/discovery:validation-definition` | Probes every field; checks whether the server enforces the rule or only the browser | `docs/discovery/validations/` |
+| 1b | `/requirements:analyze-requirements` | Optional — reads requirement documents, if any exist | `docs/analysis/` |
+| 4 | `/test-design:test-planner` | Decides scope, depth, priority; lists conflicts | `docs/test-plan.md` |
+| 5 | `/test-design:test-case-designer` | Writes the manual test cases | `docs/test-cases/<module>/` |
+| 6 | `/test-data:data-factory` | Dummy data from the validation rules | `test-data/` |
+| 7 | `/automation-api:*` and `/automation-ui:*` | Writes and stabilizes API, UI and E2E tests | `automation/` |
+| 8 | `/database:db-validator` | Fills the PENDING table mappings, adds read-only DB checks | `automation/db/`, `docs/analysis/schema-check.md` |
+| 9 | `/execution:test-executor` | Runs the suites, collects log, video, screenshots | `docs/reports/execution-*.md` |
+| 10 | `/healing:investigate-failures` | Diagnoses every failure: broken test or broken product | `docs/reports/investigation-*.md`, `docs/bugs/` |
+| 11 | `/reporting:quality-reporter` | Release verdict for managers | `docs/reports/quality-report-*.md` |
+| Any | `/change:impact-analysis` | Applies a change to only what it affects | `docs/changes/` |
 
-Each output folder is created the first time its step runs, so a new project shows only `docs/requirements/`. Setup steps and the full command reference are in the repo `README.md`.
+Each output folder is created the first time its step runs, so a new
+project starts with almost nothing. Setup and the full command reference
+are in the repo `README.md`.
 
 ## Example: the API keys module
 
-An illustrative run on one module. Input: PRD section 4 ("up to 5 keys per endpoint, name 3–40 characters, shown once, revocable, sent in the x-api-key header"), one mockup and a client note.
+An illustrative run on one module, starting from nothing but a URL, a
+login, and the sentence *"check the API key part."*
 
 | Step | You type | You get |
 | --- | --- | --- |
-| 1 | `analyze-requirements module:keys` | 4 features, 5 rules, 5 gaps. First question: how fast must a revoked key stop working? Product answers "60 seconds", which becomes a new rule |
-| 2 | `test-planner module:keys` | 8 test cases, e.g. TC-014 "Revoked key rejected within 60 s" (P0) |
-| 3 | `data-factory module:keys` | Boundary data for key names: 2, 3, 40 and 41 characters, plus fake keys |
-| 4 | `api-test-generator module:keys` | 7 API tests; the UI-only case is left for the UI generator |
-| 5 | `test-executor module:keys` | 10 of 11 runs pass. TC-014 fails: the revoked key still works after 60 s, so bug BUG-003 (Sev-2) is filed |
+| 1 | `explore-app "generate an API key"` | SEQ-002, 4 steps, 5 screenshots. Finding: a "Copy key" button on the masked list. Question: is the key really shown only once? |
+| 2 | `event-definition SEQ-002` | 4 events. `POST /api/endpoints/{id}/keys` takes 3.9 s — explains a future flaky test. DB mapping PENDING |
+| 3 | `validation-definition screen:generate-key-dialog` | 4 rules. VAL-008 (max 40) is enforced **in the browser only** — the API accepted 256 characters |
+| 4–5 | `test-planner` then `test-case-designer` | 5 test cases. The boundary case runs at the API layer because of VAL-008 |
+| 9–10 | `test-executor` then `investigate-failures` | 12 runs: 9 pass, 2 fail, 1 flaky → BUG-003 (Sev-2) drafted, two fixes proposed — all three await the lead |
 
-Every link is traceable: BUG-003 → TC-014 → the 60-second rule → product's answer → PRD section 4.4. Only the keys module was touched. The full example, with sample files and code, is in [module-keys-walkthrough.md](module-keys-walkthrough.md) (same folder).
+BUG-003 traces back through TC-013 → DAT-024 → VAL-008 → SEQ-002 step 4
+→ a screenshot. Only the keys module was touched.
+
+The full example, with sample files and code, is in
+[module-keys-walkthrough.md](module-keys-walkthrough.md).
+
+## Why the enforcement check matters
+
+Step 3 does something a normal UI test suite never does: it takes each
+rule the browser enforces and sends the same bad value straight to the
+API. In the example that single check found a real defect — the UI stops
+at 40 characters, the API stores 256 — and it moved the test to the layer
+where it would actually catch something. A UI-only test would have passed
+forever while the hole stayed open.
 
 ## Working on one part
 
-Add a selection to any command to work on one part instead of everything; other parts are never touched.
+Add a selection to any command; other parts are never touched.
 
 | Pick | Example |
 | --- | --- |
+| A workflow | `seq:create-endpoint` |
+| A screen | `screen:key-list` |
 | A module | `module:keys` |
-| A workflow step | `flow:3` |
 | Test cases | `TC-014 TC-020` |
 | A priority | `P0` |
 
-## Product updates
+## When the application changes
 
-A change from product updates only what it affects; nothing is rebuilt.
+A redesigned screen does not mean rewriting the suite.
 
-1. Save the email or chat as a change request in `docs/requirements/changes/`.
-2. Run `/change:impact-analysis`. It lists every affected rule, test case and test, and waits for approval.
-3. Re-run only the commands it lists, for only the affected test cases.
+1. Re-run discovery for that part only: `/discovery:explore-app seq:create-endpoint`.
+2. Approve the updated sequence.
+3. `/change:impact-analysis` lists every affected event, validation, test
+   case, data record and automated test — and waits.
+4. Re-run only the commands it lists.
 
 IDs never change, so history stays traceable.
 
+## Failures get investigated, not re-run
+
+Every failure leaves with a verdict and an owner: broken test,
+application issue, stale expectation, environment, or data. A broken test
+gets an exact diff with its blast radius — **proposed, never applied** —
+and a checklist proving the fix doesn't hide a bug. A healer may fix a
+broken test; it may never fix a failing expectation. It cannot weaken an
+assertion, add a sleep, skip a test, or commit anything.
+
+That limit is the point. A self-healing suite that quietly repairs itself
+around a regression is worse than no suite at all.
+
 ## Database checks
 
-QA never writes to the database: tests create data through the API like a real customer, then read the database to confirm the app stored it correctly.
+QA never writes to the database: tests create data through the API like a
+real customer, then read the database to confirm the app stored it
+correctly.
 
-1. Backend adds the schema (no data) to `docs/requirements/db/`; DevOps adds a read-only login to `.env`.
-2. Run `/database:db-validator`. It first compares the schema with the requirements (e.g. PRD says 40 characters, column allows 30), then adds DB checks to the existing tests.
-3. Run `npm run test:db`. Until the database is ready, only the DB steps are skipped; everything else still runs.
+1. DevOps adds a read-only login to `.env`. That is the whole ask — the
+   schema is read from `information_schema`, so nobody has to export one
+   and backend is not involved.
+2. `/database:db-validator` compares the schema with the validation rules
+   (e.g. the UI allows 40 characters, the column is `VARCHAR(30)`), fills
+   the PENDING table mapping on every event — it traces the unique `qa-`
+   record to find the table and column, then diffs that row by primary
+   key to see exactly what changed — and adds the DB checks.
+3. Until then, only the DB parts are skipped; everything else runs.
+
+## If database access is refused
+
+Set `DB_ACCESS=none`. Step 8 is out by design, and storage is checked by six
+black-box probes through the API (round-trip, delete-and-recreate, cascade,
+exposure sweep, write confirmation, idempotency). They catch truncation,
+surviving rows and orphans, but **cannot** prove hashing or encryption at
+rest, or name the exact table written. Every report says so. Details:
+`docs/requirements/db/README.md`.

@@ -16,6 +16,9 @@
 ## 2. Impact
 | Level | Affected | Action |
 |---|---|---|
+| Sequences | SEQ-002 (step 4 changed) | Re-walk |
+| Events | EVT-012 (route unchanged, response gained `expiresAt`) | Re-map |
+| Validations | VAL-008 | Re-probe |
 | Features / rules | BR-007, BR-031 | Update / add |
 | Test cases | TC-014 (modify), TC-040 (new) | Update / add |
 | Test data | DAT-012 (used by TC-014) | Regenerate |
@@ -29,6 +32,9 @@ Unaffected: everything else (<n> test cases, <n> automated tests).
 
 ## 4. Follow-up commands (after approval)
 ```
+/discovery:explore-app SEQ-002
+/discovery:validation-definition VAL-008
+/test-design:test-case-designer TC-014 TC-040
 /test-data:data-factory TC-014 TC-040
 /automation-api:api-test-generator TC-014 TC-040
 /execution:test-executor TC-014 TC-040

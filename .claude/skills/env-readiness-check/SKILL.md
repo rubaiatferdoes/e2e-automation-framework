@@ -32,9 +32,10 @@ fill in the test environment values." Stop there.
 | 2 | Test environment UI reachable | `curl -s -o /dev/null -w "%{http_code}" "$TEST_ENV_BASE_URL"` | 200/3xx |
 | 3 | Platform API reachable | same, on `$TEST_ENV_API_URL` health or docs route | 200 |
 | 4 | Swagger reachable | `curl` on `$TEST_ENV_SWAGGER_URL` | 200 and body is JSON/YAML |
-| 5 | Test tenants exist | Log in / call the platform API as `qa-tenant-a` and `qa-tenant-b` (login route from the requirement analysis) | Both succeed. Login route not known yet → `⚠️ SKIPPED` |
-| 6 | Tools installed | `node -v` (18+), `npx playwright --version`. If `automation/` exists: `npm ci` done, `npm run typecheck` passes | Versions print. `automation/` missing (before step 4) → that part is `⚠️ SKIPPED — automation/ not created yet`, not FAIL. `automation/` exists → typecheck must also pass |
+| 5 | Test tenants can log in | Log in through the UI as `qa-tenant-a` and `qa-tenant-b` | Both reach a logged-in screen. This is the check discovery depends on — a wrong password here looks like "the app is broken" for the next hour |
+| 6 | Tools installed | `node -v` (18+), `npx playwright --version`. If `automation/` exists: `npm ci` done, `npm run typecheck` passes | Versions print. `automation/` missing (before discovery) → that part is `⚠️ SKIPPED — automation/ not created yet`, not FAIL. `automation/` exists → typecheck must also pass |
 | 7 | Leftover test data | List endpoints/keys starting with `qa-` older than 24h | None — or list them for cleanup |
+| 8 | Discovery harness | If `automation/discovery/` exists: run a one-step walk against the login page | Artifacts written. Missing before step 1 → `⚠️ SKIPPED` |
 
 ## Output
 
@@ -53,6 +54,9 @@ VERDICT: READY  (or: NOT READY — fix #2, #5 first)
   Delete only via the platform API, only `qa-` items, only on the test environment.
 - If a check can't run because a value is missing, mark it `⚠️ SKIPPED`
   with the reason — don't mark it PASS.
-- Check 6's `npm ci`/`typecheck` part only applies once `automation/`
-  exists (created in step 4). Running this skill at step 0, before any
-  automation code exists, is normal — don't let that alone cause NOT READY.
+- Checks 6 and 8 only apply once `automation/` exists (created by the
+  first discovery run). Running this skill at step 0, before any code
+  exists, is normal — don't let that alone cause NOT READY.
+- Check 5 is the one that saves the most time. Discovery clicks through
+  the real UI, so an expired test password turns into an hour of
+  "the app is broken" before anyone checks the login.
