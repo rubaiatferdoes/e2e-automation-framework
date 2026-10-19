@@ -97,7 +97,7 @@ They combine with AND — `F-003 P0` is the P0 cases of feature F-003.
 
 - **In** — approved `SEQ-*.md` + field dumps + the events (for API routes)
 - **Out** — `docs/discovery/validations/<module>.validations.md` + a screenshot of each rule firing
-- **Note** — four passes: read the DOM, probe each field, **send the same bad value straight to the API**, then probe count/quota limits
+- **Note** — five passes: read the DOM, probe each field, **send the same bad value straight to the API**, probe count/quota limits, then compare everything against the standard validation baseline — a gap is a finding, never an expected result
 - **Note** — `Enforced: client` or `none` is a defect, not a rule: anyone calling the API bypasses it. That verdict moves the test case to the API layer
 - **Note** — it writes data (uniqueness and quota probes must), deletes it, and lists it by name
 

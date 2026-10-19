@@ -44,6 +44,8 @@ Agents must actively look for what is wrong instead of recording it as
 normal. Always report, never bless:
 
 - a required field with no validation, or a validation with no message
+- a field missing a rule a market-standard form has — the standard
+  validation baseline in the `validation-definition` skill names them
 - a 5xx response (always a bug — see section 6)
 - an error message that leaks internals (stack trace, SQL, file path)
 - an action whose API call fails but whose UI shows success

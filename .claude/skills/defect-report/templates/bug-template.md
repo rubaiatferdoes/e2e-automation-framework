@@ -9,7 +9,7 @@
 | Environment | Test environment — <URL name, not the full URL> · build <version> |
 | Browser / client | Chromium <ver> / Playwright API test / curl |
 | Test case | TC-<nnn> |
-| Violates | SEQ-<nnn> / VAL-<nnn> / EVT-<nnn> (and F-/BR- where documents exist) |
+| Violates | SEQ-<nnn> / VAL-<nnn> / EVT-<nnn> (and F-/BR- where documents exist); a standard-baseline gap cites the item name + its Q-, e.g. `standard baseline — **Allowed characters**; Q-012` |
 | Reproducible | Always / Intermittent (<x> of <y> runs) |
 
 ## Steps to reproduce

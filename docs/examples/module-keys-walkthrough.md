@@ -133,7 +133,8 @@ PENDING instead of a guess · the console-logging finding is raised.
 ```
 
 Reads the DOM first, then probes the field, then — the part that matters
-— sends the same bad values straight to `POST /api/endpoints/{id}/keys`.
+— sends the same bad values straight to `POST /api/endpoints/{id}/keys`,
+and finally compares everything against the standard validation baseline.
 
 **`docs/discovery/validations/keys.validations.md`**
 
@@ -149,10 +150,17 @@ Findings: 1
   VAL-008 is enforced in the browser only. The API accepted a 256-character
   key name and stored it. Any API caller writes names the UI can never show.
   → BUG candidate, and a test case the UI alone would never have found.
+
+Standard comparison (5 baseline items apply to this screen)
+  **Minimum length**  VAL-009 rejects 2 characters with the limit stated   Match
+  **Maximum length**  VAL-008 is client-only; the API stored 256           Gap
+  every other row    Match — one row per applicable item, Matches included
 ```
 
 **You check:** messages quoted exactly, full stops included · the
-`client`-only row is flagged, not recorded as a normal rule.
+`client`-only row is flagged, not recorded as a normal rule · the
+Standard comparison table is filled — Matches included — and its one
+Gap is the same BUG candidate as the enforcement finding, not a new one.
 
 **Then:** approve all three discovery files. **This approval is the
 moment observation becomes expectation** — everything downstream now
