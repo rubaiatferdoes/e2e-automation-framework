@@ -28,7 +28,7 @@ verified.
                                                        broken product
                                                        → a bug)
 
- Every arrow is a review gate.  * waiting on read-only DB access
+ Every arrow is a review gate.  * needs read-only DB access (DB_ACCESS=readonly); otherwise @persistence probes
 ```
 
 Requirement documents are **optional** and plug in beside step 1: when
@@ -155,3 +155,12 @@ correctly.
    record to find the table and column, then diffs that row by primary
    key to see exactly what changed — and adds the DB checks.
 3. Until then, only the DB parts are skipped; everything else runs.
+
+## If database access is refused
+
+Set `DB_ACCESS=none`. Step 8 is out by design, and storage is checked by six
+black-box probes through the API (round-trip, delete-and-recreate, cascade,
+exposure sweep, write confirmation, idempotency). They catch truncation,
+surviving rows and orphans, but **cannot** prove hashing or encryption at
+rest, or name the exact table written. Every report says so. Details:
+`docs/requirements/db/README.md`.

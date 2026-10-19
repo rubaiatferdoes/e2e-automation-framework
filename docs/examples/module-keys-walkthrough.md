@@ -414,6 +414,6 @@ sleep, or relax the 400 in TC-013 to make the suite green.
 
 **Next for this module:** approve FIX-001 and FIX-002 → re-run
 `/execution:test-executor module:keys` → when the P0s pass,
-`/reporting:quality-reporter module:keys`. When read-only DB access
+`/reporting:quality-reporter module:keys`. With `DB_ACCESS=none` the `@persistence` probes check storage instead. When read-only DB access
 arrives, `/database:db-validator module:keys` fills EVT-012's PENDING
 block and checks the key is stored hashed.

@@ -27,7 +27,7 @@ conversation, so you can discuss the result
 | 7b **A** | [`/automation-api:api-test-reviewer`](#7b--automation-apiapi-test-reviewer) | Stable API tests |
 | 7c **A** | [`/automation-ui:playwright-generator`](#7c--automation-uiplaywright-generator) | UI + E2E tests |
 | 7d **A** | [`/automation-ui:playwright-reviewer`](#7d--automation-uiplaywright-reviewer) | Stable UI tests |
-| 8 **A** | [`/database:db-validator`](#8--databasedb-validator) | DB checks + filled table mappings |
+| 8 **A** | [`/database:db-validator`](#8--databasedb-validator) | DB checks + filled table mappings *(only if `DB_ACCESS=readonly`)* |
 | 9 **A** | [`/execution:test-executor`](#9--executiontest-executor) | Execution report + evidence |
 | 10 **A** | [`/healing:investigate-failures`](#10--healinginvestigate-failures) | A verdict per failure |
 | 11 **A** | [`/reporting:quality-reporter`](#11--reportingquality-reporter) | Release verdict |
@@ -186,6 +186,8 @@ They combine with AND — `F-003 P0` is the P0 cases of feature F-003.
 > Confirm the app stored it correctly, and complete the event map.
 
 `/database:db-validator module:keys`
+
+> **Conditional.** Runs only when `DB_ACCESS=readonly` in `.env`. With `DB_ACCESS=none` it stops by design, and the `@persistence` probes (`npm run test:persistence`) cover storage instead — see [requirements/db/README.md](requirements/db/README.md).
 
 - **In** — read-only DB settings in `.env` + approved events with `PENDING` + validations + test cases
 - **Out** — `docs/analysis/schema-check.md` · `automation/db/`, `automation/tests/db/` · **fills the `db:` blocks in the event files**

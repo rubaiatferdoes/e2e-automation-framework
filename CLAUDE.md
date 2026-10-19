@@ -27,7 +27,7 @@ Two sources, and they are not equal:
 | Source | What it gives us | Status |
 |---|---|---|
 | **Discovery** — walking the live app (`docs/discovery/`) | What the product **does**: sequences, events, API calls, field validations | **Observation.** Never automatically correct |
-| **Requirements** — PRD/FRD/mockups, and the DB schema export (`docs/requirements/`) | What the product **should** do | Intent. PRD/FRD are optional — many screens have none. The schema export is provided before we start |
+| **Requirements** — PRD/FRD/mockups, and the DB schema export if one is provided (`docs/requirements/`) | What the product **should** do | Intent. PRD/FRD are optional — many screens have none. The schema export is optional too: see the `DB_ACCESS` row in section 3 |
 
 **Observation is not truth.** This is the most important rule in this
 file. An agent that walks the app records what it saw; it never promotes
@@ -57,7 +57,7 @@ normal. Always report, never bless:
 | Topic | Decision | Status |
 |---|---|---|
 | Customizing/editing an endpoint after creation | OUT of scope | Not confirmed if customers can edit — revisit |
-| Database type | Schema export and a read-only `SELECT` user are provided before the pipeline starts | Both are in place at step 0: the export in `docs/requirements/db/`, the credentials in `.env`. DB checks are IN scope from the start, and event DB mappings are filled during discovery rather than retrofitted. If the credentials have not arrived yet the fallback still holds — mappings stay `PENDING`, DB checks skip (see `docs/requirements/db/README.md`) |
+| Database access | Set by `DB_ACCESS` in `.env`: `none` or `readonly`. Default `none` while `DB_TYPE` is empty | **`readonly`** — a `SELECT` user is in `.env`: step 8 runs, event DB mappings are filled by the tracer, `tests/db/` runs. **`none`** — access was not granted: step 8 is OUT, event DB mappings stay `PENDING` permanently, and storage is checked by the black-box `@persistence` probes (see `event-baseline.md` section 4). In `none` mode the plan marks the DB column `Out (no access)`, never `Later`, and every quality report states what cannot be verified (encryption at rest, exact tables and columns, writes with no API surface). See `docs/requirements/db/README.md` |
 | Cross-tenant access response (403 vs 404) | Unknown | Ask product — never hard-code either |
 | Key revocation delay (how fast a key stops working) | Unknown | Ask product — poll up to that limit |
 | Requirement documents | Optional | If `docs/requirements/` is empty, discovery plus human confirmation is the only oracle. Say so in the test plan |
@@ -230,8 +230,9 @@ unless the arguments say `allow-draft`.
 | `automation/discovery/` | app-explorer (the walk harness), reused by the other discovery agents |
 | `automation/ui/`, `automation/tests/ui/`, `automation/tests/e2e/` | playwright-generator / playwright-reviewer |
 | `automation/api/`, `automation/tests/api/` | api-test-generator / api-test-reviewer |
-| `docs/requirements/db/` | Humans — DB schema export (no data), provided before the pipeline starts |
-| `automation/db/`, `automation/tests/db/`, `docs/analysis/schema-check.md` | db-validator |
+| `docs/requirements/db/` | Humans — DB schema export (no data), only if provided |
+| `automation/db/`, `automation/tests/db/`, `docs/analysis/schema-check.md` | db-validator (`DB_ACCESS=readonly` only) |
+| `automation/persistence/`, `automation/tests/persistence/` | api-test-generator (black-box storage probes, `@persistence`) |
 | `docs/reports/execution-*.md`, `docs/reports/quality-report-*.md` | test-executor, quality-reporter |
 | `docs/reports/investigation-*.md` | test-healer |
 | `docs/bugs/` | defect-report, test-healer |
@@ -255,7 +256,7 @@ unless the arguments say `allow-draft`.
    ── Automation ──
 7. /automation-api:api-test-generator  → api-test-reviewer
    /automation-ui:playwright-generator → playwright-reviewer
-8. /database:db-validator           (only after the DB type is known)
+8. /database:db-validator           (only when DB_ACCESS=readonly; in `none` mode the @persistence probes in step 7 stand in)
 
    ── Run and react ──
 9.  /execution:test-executor        run suites → report with log, video, screenshots
