@@ -1,6 +1,6 @@
 ---
 name: failure-healing
-description: Investigate a failed automated test from its log, video, screenshot, and trace — decide whether the test is broken or the application is, propose an exact fix for a broken test, and file a bug for an application issue. Use when tests fail, when a failure needs diagnosis, or when self-healing or test repair is requested.
+description: Investigate a failed automated test from its log, video, screenshot, and trace — decide whether the test is broken or the application is, propose an exact fix for a broken test, and draft a bug report for the lead to approve when the application is at fault. Use when tests fail, when a failure needs diagnosis, or when self-healing or test repair is requested.
 ---
 
 # Failure Healing — broken test, or broken product?

@@ -21,7 +21,8 @@ it correctly. Never INSERT, UPDATE, DELETE, or change the schema.
 | Situation | What to do |
 |---|---|
 | `DB_TYPE`, `DB_URL`, or the read-only credentials empty | Stop. Tell the user what's missing (see `docs/requirements/db/README.md`). |
-| Credentials set | Continue — read the schema from `information_schema`. A schema export in `docs/requirements/db/` is optional extra context, never a precondition. |
+| Credentials set, export present | Continue. Read the **live** schema from `information_schema` and compare it with the **intended** schema exported to `docs/requirements/db/`. A difference between the two is a finding — report it, never silently prefer one. |
+| Credentials set, no export yet | Continue on `information_schema` alone. Say in `schema-check.md` that the intended schema was unavailable, so only validation rules were compared. |
 | The read-only user can write | Stop. Report it as a Sev-1 environment risk. |
 
 ## 2. Schema vs what we know (report before writing code)

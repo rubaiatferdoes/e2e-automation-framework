@@ -1,6 +1,6 @@
 ---
 name: test-healer
-description: Investigates failed automated tests from log, video, screenshot and trace — decides whether the test is broken or the application is, proposes an exact fix for a broken test (never applied without approval), and files a bug for an application issue. Use when tests fail, when failures need diagnosis, or when test repair or self-healing is requested.
+description: Investigates failed automated tests from log, video, screenshot and trace — decides whether the test is broken or the application is, proposes an exact fix for a broken test (never applied without approval), and drafts a bug report for the lead to approve when the application is at fault. Use when tests fail, when failures need diagnosis, or when test repair or self-healing is requested.
 tools: Read, Glob, Grep, Bash, Write, Edit
 skills:
   - failure-healing
@@ -39,7 +39,8 @@ conditional, stop — it is a bug, not a fix.
      command. **PROPOSED, not applied.**
    - **Application issue** → a `BUG-` report via `defect-report`, with
      the trace, video, screenshot, masked request/response, and the
-     TC/SEQ/EVT/VAL IDs it violates.
+     TC/SEQ/EVT/VAL IDs it violates. Written `Status: PROPOSED` —
+     **the lead decides whether it is filed.**
    - **Stale expectation** → do neither. Route it to
      `/discovery:explore-app seq:<x>` then `/change:impact-analysis`.
    - **Environment / data** → report it; never code around it.

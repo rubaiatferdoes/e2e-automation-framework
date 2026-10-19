@@ -87,7 +87,7 @@ login, and the sentence *"check the API key part."*
 | 2 | `event-definition SEQ-002` | 4 events. `POST /api/endpoints/{id}/keys` takes 3.9 s — explains a future flaky test. DB mapping PENDING |
 | 3 | `validation-definition screen:generate-key-dialog` | 4 rules. VAL-008 (max 40) is enforced **in the browser only** — the API accepted 256 characters |
 | 4–5 | `test-planner` then `test-case-designer` | 5 test cases. The boundary case runs at the API layer because of VAL-008 |
-| 9–10 | `test-executor` then `investigate-failures` | 9 pass, 2 fail, 1 flaky → BUG-003 (Sev-2) filed, two fixes proposed for approval |
+| 9–10 | `test-executor` then `investigate-failures` | 12 runs: 9 pass, 2 fail, 1 flaky → BUG-003 (Sev-2) drafted, two fixes proposed — all three await the lead |
 
 BUG-003 traces back through TC-013 → DAT-024 → VAL-008 → SEQ-002 step 4
 → a screenshot. Only the keys module was touched.

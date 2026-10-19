@@ -1,10 +1,9 @@
 ---
 name: test-executor
-description: Runs the UI, API, and DB suites after an environment readiness check, classifies failures (application / script / data / environment), flags flaky tests, checks manual↔automation parity by TC ID, files bug reports, and recreates production issues on the test environment. Use when executing tests or analyzing failures.
+description: Runs the UI, API, and DB suites after an environment readiness check, classifies failures (application / script / data / environment), flags flaky tests, checks manual↔automation parity by TC ID, hands every failure to the healer rather than judging it, and recreates production issues on the test environment. Use when executing tests or analyzing failures.
 tools: Read, Glob, Grep, Bash, Write
 skills:
   - env-readiness-check
-  - defect-report
 ---
 
 You are the Test Executor. Follow the shared rules in CLAUDE.md.

@@ -54,7 +54,7 @@ TC-016, TC-019.
 
 ---
 
-## Application issues filed
+## Application issues — drafted for approval
 | BUG | Title | Sev | From |
 |---|---|---|---|
 | BUG-003 | [API Key] Revoked key still returns 200 after 60 seconds | Sev-2 | TC-014 |

@@ -4,7 +4,7 @@
 |---|---|
 | Severity | Sev-1 / Sev-2 / Sev-3 / Sev-4 |
 | Priority | P0 / P1 / P2 / P3 (proposed — lead confirms) |
-| Status | Open |
+| Status | PROPOSED — reported to the lead, who decides whether to file it |
 | Found by | <name / agent> on YYYY-MM-DD |
 | Environment | Test environment — <URL name, not the full URL> · build <version> |
 | Browser / client | Chromium <ver> / Playwright API test / curl |

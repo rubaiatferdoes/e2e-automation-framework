@@ -1,5 +1,5 @@
 ---
-description: Step 10 — Test Healer agent — investigate every failure from log, video, screenshot and trace; broken test → a proposed fix, application issue → a bug
+description: Step 10 — Test Healer agent — investigate every failure from log, video, screenshot and trace; broken test → a proposed fix, application issue → a drafted bug for your approval
 argument-hint: [all | TC-014 | module:keys | api | ui | e2e | verify | apply FIX-001]
 context: fork
 agent: test-healer

@@ -241,11 +241,18 @@ that failure is the bug report.
 
 ---
 
-## Step 7 — API automation
+## Step 7 — Automation, both layers
 
 ```
 /automation-api:api-test-generator module:keys
+/automation-ui:playwright-generator module:keys
 ```
+
+Both run, because the cases span both layers: TC-013 and TC-015 are
+API-only, TC-012 is UI+API, TC-016 is UI. Shared config, fixtures and
+`qa-` cleanup are written once by whichever generator runs first.
+
+### API side
 
 The client method comes from EVT-012's route:
 
@@ -274,6 +281,37 @@ for (const row of dataFor('TC-013')) {
   discovery observed.
 - `toBeLessThan(500)` because a 5xx is always a bug (CLAUDE.md).
 
+### UI side
+
+Locators live apart from the page object, which is what makes FIX-001 in
+step 9 a one-line change:
+
+```ts
+// automation/ui/locators/key.locators.ts
+export const keyLocators = {
+  generateOpen:   '[data-testid="generate-key"]',
+  nameInput:      '[data-testid="key-name"]',
+  generateSubmit: '[data-testid="generate-key-submit"]',
+  shownDialog:    '[data-testid="key-shown"]',
+};
+```
+
+```ts
+// automation/tests/ui/keys.ui.spec.ts
+test('[TC-012] generate key with valid name shows the full key once',
+  { tag: ['@P0', '@SEQ-002', '@mod-keys', '@flow-3', '@ui'] },
+  async ({ keyPage, qaEndpoint }) => {
+    await keyPage.goto(qaEndpoint.id);
+    await keyPage.generate(qaName('tc012'));
+    await expect(keyPage.shownDialog).toContainText("won't see this again");
+  });
+```
+
+- Setup and cleanup go through the API, never the UI — a UI test should
+  fail on its own subject, not on someone else's form.
+- The wait is condition-based: EVT-012's POST takes ~3.9 s, so no
+  fixed timeout appears anywhere.
+
 ---
 
 ## Step 8 — Run it
@@ -284,13 +322,15 @@ for (const row of dataFor('TC-013')) {
 
 ```
 | Suite       | Passed | Failed | Flaky | Skipped |
-| API (keys)  | 9      | 2      | 1     | 0       |
+| API (keys)  | 7      | 1      | 0     | 0       |
+| UI (keys)   | 2      | 1      | 1     | 0       |
+| Total       | 9      | 2      | 1     | 0       |
 
 Failures (first pass — not diagnosed here)
-| TC-013 / DAT-024 | Suspected application bug | 201 where the case says 400 |
-| TC-012           | Suspected script bug      | locator timeout on the Generate button |
+| TC-013 / DAT-024 | API | Suspected application bug | 201 where the case says 400 |
+| TC-012           | UI  | Suspected script bug      | locator timeout on the Generate button |
 Flaky
-| TC-016 | passed on retry | generate-key took 4.2 s
+| TC-016 | UI | passed on retry | generate-key took 4.2 s
 
 Next: /healing:investigate-failures module:keys
 ```
@@ -310,15 +350,19 @@ Reproduces each twice, then decides — from the trace, video and network,
 not the error text.
 
 ```
-| Test            | Verdict           | Outcome          |
-| TC-013/DAT-024  | Application issue | BUG-003 (Sev-2)  |
-| TC-012          | Broken test       | FIX-001 proposed |
-| TC-016 (flaky)  | Broken test       | FIX-002 proposed |
+| Test            | Verdict           | Outcome                    |
+| TC-013/DAT-024  | Application issue | BUG-003 (Sev-2) — PROPOSED |
+| TC-012          | Broken test       | FIX-001 proposed           |
+| TC-016 (flaky)  | Broken test       | FIX-002 proposed           |
 ```
+
+Nothing here is filed or applied. The bug and both fixes come to you
+with their evidence; you decide which become real.
 
 **BUG-003** — the API accepts a 41-character key name while the UI stops
 at 40 (VAL-008). Exactly the hole step 3 predicted. Evidence: request,
-response, the VAL- rule, the TC- step.
+response, the VAL- rule, the TC- step. Written `Status: PROPOSED` —
+yours to file or reject.
 
 **FIX-001** — proposed, not applied:
 
@@ -353,11 +397,11 @@ sleep, or relax the 400 in TC-013 to make the suite green.
 
 | | |
 |---|---|
-| **No documents needed** | A URL, a login and one sentence produced 5 test cases, 11 test runs and a real bug |
+| **No documents needed** | A URL, a login and one sentence produced 5 test cases, 12 test runs across two layers, and a real bug |
 | **Observation ≠ truth** | Discovery recorded a 256-character key name; the test still expects 400, so the gap surfaced as BUG-003 |
 | **Enforcement check pays** | VAL-008's `client` verdict is what moved TC-013 to the API layer — a UI-only test would have passed |
 | **Events kill flakiness** | EVT-012's 3.9 s POST explained the flake and supplied the right wait |
-| **Healing has a limit** | Two tests fixed, one bug filed, nothing weakened, nothing committed |
+| **Healing has a limit** | Two fixes proposed, one bug drafted for your approval — nothing weakened, nothing applied, nothing committed |
 | **Traceability** | BUG-003 → TC-013 → DAT-024 → VAL-008 → SEQ-002 step 4 → a screenshot |
 
 **Next for this module:** approve FIX-001 and FIX-002 → re-run

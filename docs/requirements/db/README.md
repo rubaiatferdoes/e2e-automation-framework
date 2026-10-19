@@ -1,10 +1,14 @@
 # docs/requirements/db — database access and schema
 
-To switch the database checks on you need **one thing**: a read-only
-database user on the test environment, in `.env`. Then run
+To switch the database checks on you need **two things**, both provided
+before the pipeline starts: a read-only database user on the test
+environment, in `.env`, and the schema export in this folder. Then run
 `/database:db-validator`.
 
-Everything in this folder is optional extra context.
+The export is the **intended** schema, so it counts as a requirement
+document (CLAUDE.md section 2). The validator reads the **live** schema
+from `information_schema` and compares the two — where they differ, that
+is a finding for a human, not something to correct.
 
 ## What read-only access is used for
 
@@ -175,7 +179,7 @@ block records `source: app SQL log` instead of `source: tracer`.
 Update the "Database type" row in `CLAUDE.md` (scope table) from
 "Unknown — read-only access is coming" to the chosen type.
 
-## 6. Until then
+## 6. Fallback — if the credentials have not arrived yet
 
 Nothing is blocked. `DB_TYPE` empty means:
 
@@ -185,5 +189,5 @@ Nothing is blocked. `DB_TYPE` empty means:
 - standalone `tests/db/` specs skip whole
 - the test plan marks the DB column `Later`, with the reason
 
-That is the intended state right now, not a failure — see the scope
-table in `CLAUDE.md`.
+That is a documented fallback, not a failure — but it is no longer the
+expected starting state. See the scope table in `CLAUDE.md`.

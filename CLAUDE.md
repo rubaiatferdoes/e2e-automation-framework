@@ -27,7 +27,7 @@ Two sources, and they are not equal:
 | Source | What it gives us | Status |
 |---|---|---|
 | **Discovery** — walking the live app (`docs/discovery/`) | What the product **does**: sequences, events, API calls, field validations | **Observation.** Never automatically correct |
-| **Requirements** — PRD/FRD/mockups, if any exist (`docs/requirements/`) | What the product **should** do | Intent. Optional — many screens have none |
+| **Requirements** — PRD/FRD/mockups, and the DB schema export (`docs/requirements/`) | What the product **should** do | Intent. PRD/FRD are optional — many screens have none. The schema export is provided before we start |
 
 **Observation is not truth.** This is the most important rule in this
 file. An agent that walks the app records what it saw; it never promotes
@@ -55,7 +55,7 @@ normal. Always report, never bless:
 | Topic | Decision | Status |
 |---|---|---|
 | Customizing/editing an endpoint after creation | OUT of scope | Not confirmed if customers can edit — revisit |
-| Database type | Unknown — read-only access is coming | Event DB mapping stays `PENDING` and DB checks are skipped until the read-only credentials are in `.env`. A `SELECT` user is the whole ask — the schema is read from `information_schema` (see `docs/requirements/db/README.md`) |
+| Database type | Schema export and a read-only `SELECT` user are provided before the pipeline starts | Both are in place at step 0: the export in `docs/requirements/db/`, the credentials in `.env`. DB checks are IN scope from the start, and event DB mappings are filled during discovery rather than retrofitted. If the credentials have not arrived yet the fallback still holds — mappings stay `PENDING`, DB checks skip (see `docs/requirements/db/README.md`) |
 | Cross-tenant access response (403 vs 404) | Unknown | Ask product — never hard-code either |
 | Key revocation delay (how fast a key stops working) | Unknown | Ask product — poll up to that limit |
 | Requirement documents | Optional | If `docs/requirements/` is empty, discovery plus human confirmation is the only oracle. Say so in the test plan |
@@ -199,6 +199,11 @@ step. Two exceptions, each narrow:
 Other changes go through `/change:impact-analysis`. Only an explicit
 "rework the approved …" from the lead resets a file to DRAFT.
 
+**Bug reports are proposals too.** A `BUG-` file is written with
+`Status: PROPOSED` and reported to the lead with its evidence. The lead
+decides whether it becomes a filed defect. No agent files a bug on its
+own initiative, and no agent closes one.
+
 **Inputs must be approved.** Before using another step's output, check
 its status. DRAFT input → stop and say which file needs approval first,
 unless the arguments say `allow-draft`.
@@ -223,7 +228,7 @@ unless the arguments say `allow-draft`.
 | `automation/discovery/` | app-explorer (the walk harness), reused by the other discovery agents |
 | `automation/ui/`, `automation/tests/ui/`, `automation/tests/e2e/` | playwright-generator / playwright-reviewer |
 | `automation/api/`, `automation/tests/api/` | api-test-generator / api-test-reviewer |
-| `docs/requirements/db/` | Humans — DB schema export (no data) |
+| `docs/requirements/db/` | Humans — DB schema export (no data), provided before the pipeline starts |
 | `automation/db/`, `automation/tests/db/`, `docs/analysis/schema-check.md` | db-validator |
 | `docs/reports/execution-*.md`, `docs/reports/quality-report-*.md` | test-executor, quality-reporter |
 | `docs/reports/investigation-*.md` | test-healer |

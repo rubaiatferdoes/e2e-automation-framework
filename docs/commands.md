@@ -189,7 +189,7 @@ They combine with AND — `F-003 P0` is the P0 cases of feature F-003.
 
 - **In** — read-only DB settings in `.env` + approved events with `PENDING` + validations + test cases
 - **Out** — `docs/analysis/schema-check.md` · `automation/db/`, `automation/tests/db/` · **fills the `db:` blocks in the event files**
-- **Note** — the whole ask is a **read-only user**. No schema export, nothing from backend: the schema comes from `information_schema`
+- **Note** — two inputs, both in place before step 0: the **read-only user** in `.env` and the **schema export** in `docs/requirements/db/`. The live schema still comes from `information_schema`; the export is the intended schema it is compared against
 - **Note** — it finds each table by tracing the unique `qa-` record, then diffs that row by primary key — so it is safe on a shared environment and needs no quiet window
 - **Note** — until `DB_TYPE` is set, DB steps inside tests skip *only that step*; everything else runs
 
@@ -213,7 +213,7 @@ what to ask DevOps for: [requirements/db/README.md](requirements/db/README.md)
 `/healing:investigate-failures` · `… TC-014` · `… verify` · `… apply FIX-001`
 
 - **In** — the latest execution report + its artifacts + test cases + definitions
-- **Out** — `docs/reports/investigation-<date>.md` · `docs/bugs/BUG-*.md` · `FIX-` proposals, **not applied**
+- **Out** — `docs/reports/investigation-<date>.md` · `docs/bugs/BUG-*.md` (`Status: PROPOSED`) · `FIX-` proposals — **nothing filed, nothing applied: the lead decides on both**
 - **Note** — reproduces twice, then decides from trace, video and network — never from the error message alone
 - **Note** — verdicts: broken test (`FIX-`) · application issue (`BUG-`) · stale expectation (back to discovery) · environment · data
 - **Note** — **it may fix a broken test; never a failing expectation.** No sleeps, no retries, no `test.skip`, no commits
